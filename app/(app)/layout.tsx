@@ -60,7 +60,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       items: [
         { href: "/memo", label: "시험 범위·암기" },
         { href: "/mock", label: "주간 모의 테스트" },
-        { href: "/exam", label: "시험 대비", soon: true },
+        { href: "/exam", label: "시험 대비" },
         { href: "/perf", label: "수행평가", soon: true },
       ],
     },

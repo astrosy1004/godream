@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { ExamScope, MockTest, WrongNote, FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
+import type { PrepExam, PrepUnit, ExamScope, MockTest, WrongNote, FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
 
 export async function fetchSessions(studentId: string, from: string, to: string): Promise<StudySession[]> {
   const supabase = await createClient();
@@ -112,4 +112,16 @@ export async function fetchMockTest(studentId: string, id: string): Promise<Mock
   const supabase = await createClient();
   const { data } = await supabase.from("mock_tests").select("*").eq("student_id", studentId).eq("id", id).maybeSingle();
   return (data as MockTest | null) ?? null;
+}
+
+/** 시험 대비: 시험 날짜순(가까운 순)으로 시험과 단원을 함께 */
+export async function fetchPrepExams(studentId: string): Promise<PrepExam[]> {
+  const supabase = await createClient();
+  const [exams, units] = await Promise.all([
+    supabase.from("exams").select("id, student_id, name, exam_on").eq("student_id", studentId).order("exam_on").limit(30),
+    supabase.from("exam_units").select("id, exam_id, subject, title, stage").eq("student_id", studentId).order("created_at").limit(1000),
+  ]);
+  const byExam = new Map<string, PrepUnit[]>();
+  for (const u of (units.data ?? []) as PrepUnit[]) byExam.set(u.exam_id, [...(byExam.get(u.exam_id) ?? []), u]);
+  return ((exams.data ?? []) as Omit<PrepExam, "units">[]).map((e) => ({ ...e, units: byExam.get(e.id) ?? [] }));
 }

@@ -96,6 +96,22 @@ export interface MockTest {
   created_at: string;
 }
 
+export interface PrepExam {
+  id: string;
+  student_id: string;
+  name: string;
+  exam_on: string;
+  units: PrepUnit[];
+}
+
+export interface PrepUnit {
+  id: string;
+  exam_id: string;
+  subject: string;
+  title: string;
+  stage: number;
+}
+
 export interface TimerRow {
   student_id: string;
   subject: string;
