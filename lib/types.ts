@@ -69,6 +69,20 @@ export interface WrongNote {
   created_at: string;
 }
 
+export interface ExamScope {
+  id: string;
+  student_id: string;
+  subject: string;
+  title: string;
+  exam_on: string | null;
+  scope_text: string;
+  image_paths: string[];
+  ai_plan: import("@/lib/exam").ExamPlan | null;
+  analyzed_at: string | null;
+  plan_added_at: string | null;
+  created_at: string;
+}
+
 export interface TimerRow {
   student_id: string;
   subject: string;

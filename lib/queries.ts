@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { WrongNote, FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
+import type { ExamScope, WrongNote, FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
 
 export async function fetchSessions(studentId: string, from: string, to: string): Promise<StudySession[]> {
   const supabase = await createClient();
@@ -88,4 +88,16 @@ export async function signedPhotoUrls(paths: string[]): Promise<Map<string, stri
   const { data } = await supabase.storage.from("wrong-notes").createSignedUrls(paths, 3600);
   for (const r of data ?? []) if (r.path && r.signedUrl) out.set(r.path, r.signedUrl);
   return out;
+}
+
+export async function fetchExamScopes(studentId: string): Promise<ExamScope[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("exam_scopes")
+    .select("*")
+    .eq("student_id", studentId)
+    .order("exam_on", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: false })
+    .limit(60);
+  return (data ?? []) as ExamScope[];
 }
