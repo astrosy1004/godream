@@ -203,3 +203,6 @@ textarea.in{min-height:84px;resize:vertical;font:inherit;line-height:1.55}
 .modal{background:var(--surface);color:var(--ink);border:1px solid var(--line2);border-radius:14px;padding:20px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
 .modal.warn{border-color:var(--red)}
 .modal ul{margin:0;padding-left:20px}
+
+/* 오답노트 */
+.wimg{max-width:100%;max-height:360px;border-radius:8px;border:1px solid var(--line);object-fit:contain;background:var(--surface2);align-self:flex-start}

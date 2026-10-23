@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
+import type { WrongNote, FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
 
 export async function fetchSessions(studentId: string, from: string, to: string): Promise<StudySession[]> {
   const supabase = await createClient();
@@ -70,4 +70,22 @@ export async function countUnreadFeedback(studentId: string): Promise<number> {
     .eq("student_id", studentId)
     .is("read_at", null);
   return count ?? 0;
+}
+
+export async function fetchWrongNotes(studentId: string, subject?: string): Promise<WrongNote[]> {
+  const supabase = await createClient();
+  let q = supabase.from("wrong_notes").select("*").eq("student_id", studentId);
+  if (subject) q = q.eq("subject", subject);
+  const { data } = await q.order("created_at", { ascending: false }).limit(100);
+  return (data ?? []) as WrongNote[];
+}
+
+/** 비공개 사진의 임시 주소(1시간). 경로 → 주소 */
+export async function signedPhotoUrls(paths: string[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  if (paths.length === 0) return out;
+  const supabase = await createClient();
+  const { data } = await supabase.storage.from("wrong-notes").createSignedUrls(paths, 3600);
+  for (const r of data ?? []) if (r.path && r.signedUrl) out.set(r.path, r.signedUrl);
+  return out;
 }

@@ -16,7 +16,8 @@
 | 수업 노트 (학생·연결된 선생님이 작성, 학부모 열람, 숙제 체크, 과목 필터) | 완료 (`0002_lessons.sql` 실행 필요) |
 | 학부모·선생님 피드백 (학생은 읽음 표시·새 글 배지) | 완료 (`0003_feedback_push.sql` 실행 필요) |
 | 저녁 9시 알림: 앱 안 팝업 + 웹 푸시 (오늘 입력이 없으면 경고, 남은 할 일이 있으면 할 일 알림) | 완료 (아래 ‘저녁 9시 알림 설정’ 필요) |
-| 오답노트, 시험 범위·암기, 모의 테스트, 시험 대비, 수행평가, 과목별 전략 | 화면 자리만 있음 (다음 단계) |
+| 오답노트: 사진 업로드(비공개 저장소), 틀린 이유, OpenAI 분석, 간격 복습(1→3→7→14일) | 완료 (`0004_wrong_notes.sql` 실행 + `OPENAI_API_KEY` 필요) |
+| 시험 범위·암기, 모의 테스트, 시험 대비, 수행평가, 과목별 전략 | 화면 자리만 있음 (다음 단계) |
 
 학부모·선생님은 연결된 학생의 기록을 **읽기만** 할 수 있고, 이 제한은 화면이 아니라 DB 정책(RLS)으로 강제돼요.
 
@@ -27,7 +28,7 @@ Next.js 16 (App Router, Server Actions, `proxy.ts`) · TypeScript · Supabase (P
 ## Supabase 설정 (처음 한 번)
 
 1. [supabase.com](https://supabase.com)에서 새 프로젝트를 만듭니다.
-2. **SQL Editor**에 `supabase/migrations/0001_init.sql`, 이어서 `0002_lessons.sql`, `0003_feedback_push.sql` 내용을 차례로 붙여 넣고 각각 실행합니다.
+2. **SQL Editor**에 `supabase/migrations/0001_init.sql`, 이어서 `0002_lessons.sql`, `0003_feedback_push.sql`, `0004_wrong_notes.sql` 내용을 차례로 붙여 넣고 각각 실행합니다.
 3. **Project Settings → API**에서 `Project URL`과 `anon`(또는 `publishable`) 키를 복사합니다.
 4. (테스트할 때만) **Authentication → Providers → Email**에서 *Confirm email*을 끄면 가입 즉시 로그인돼요. 켜 두면 확인 메일의 링크를 눌러야 해요.
 5. 배포 주소가 정해지면 **Authentication → URL Configuration**의 *Site URL*에 그 주소를 넣습니다.
@@ -66,6 +67,14 @@ npm run typecheck
 4. 학생이 사이드바의 **‘저녁 9시 알림 켜기’**를 눌러 브라우저 알림을 허용해요. 아이폰은 홈 화면에 추가한 뒤에 가능해요.
 
 참고: Vercel Hobby 요금제의 크론은 지정한 시각 ‘안의 한 시간 이내’에 실행돼 정확히 9시가 아닐 수 있어요. 정확한 시각이 필요하면 Pro 요금제 또는 외부 스케줄러(예: cron-job.org)로 `Authorization: Bearer <CRON_SECRET>` 헤더를 붙여 `/api/cron/nightly`를 매일 21:00(KST)에 호출하세요.
+
+## 오답노트 AI 분석 설정 (OpenAI)
+
+1. [platform.openai.com](https://platform.openai.com)에서 API 키를 만들고 결제 한도(Usage limits)를 정해 두세요.
+2. Vercel **Environment Variables**에 `OPENAI_API_KEY`(서버 전용, 공개 금지)를 추가하고 **Redeploy**합니다. 모델을 바꾸려면 `OPENAI_MODEL`도 넣어요(비우면 `gpt-4o-mini`).
+3. 학생은 오답 카드의 **‘AI로 분석하기’**를 눌러요. 결과는 노트에 저장돼 다시 비용이 들지 않고, 학생당 하루 20번으로 제한해요.
+
+주의: AI 분석 시 문제 사진과 입력한 글이 OpenAI로 전송돼요. 만 14세 미만 학생의 개인정보 국외 전송과 보호자 동의 문구는 출시 전에 전문가 검토 후 약관·처리방침에 반영해야 해요.
 
 ## 폴더 구조
 

@@ -50,6 +50,25 @@ export interface FeedbackRow {
   author: { name: string; role: Role } | null;
 }
 
+export interface WrongNote {
+  id: string;
+  student_id: string;
+  subject: string;
+  unit: string;
+  question_text: string;
+  my_answer: string;
+  correct_answer: string;
+  reason: string;
+  memo: string;
+  image_path: string | null;
+  ai_analysis: import("@/lib/wrong").WrongAnalysis | null;
+  analyzed_at: string | null;
+  review_count: number;
+  next_review_on: string | null;
+  mastered_at: string | null;
+  created_at: string;
+}
+
 export interface TimerRow {
   student_id: string;
   subject: string;
