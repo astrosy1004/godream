@@ -1,4 +1,5 @@
 import { parseExamPlan, type ExamPlan } from "@/lib/exam";
+import { parseDiagnosis, reasonText, type Diagnosis, type SubjectStats } from "@/lib/strategy";
 import { parseAiSteps, type StepDraft } from "@/lib/perf";
 import { parseMockQuestions, type MockQuestion } from "@/lib/mock";
 import { parseAnalysis, type WrongAnalysis } from "@/lib/wrong";
@@ -355,4 +356,50 @@ export async function generatePerfSteps(input: PerfGenInput): Promise<StepDraft[
   const steps = parseAiSteps(raw, input.today, input.due);
   if (!steps) throw new AiError("AI가 쓸 만한 단계를 만들지 못했어요. 기본 단계로 추가하거나 메모를 더 적어 다시 시도해 주세요.");
   return steps;
+}
+
+/* ---------- 과목별 전략: 내 기록 진단 ---------- */
+
+const DIAG_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["summary", "strengths", "weaknesses", "next_week", "encouragement"],
+  properties: {
+    summary: { type: "string", description: "기록을 바탕으로 한 현재 상태 2~3문장" },
+    strengths: { type: "array", items: { type: "string" }, description: "잘하고 있는 점 (최대 3개, 근거 숫자 포함)" },
+    weaknesses: { type: "array", items: { type: "string" }, description: "보완할 점 (최대 3개, 근거 숫자 포함)" },
+    next_week: { type: "array", items: { type: "string" }, description: "다음 주에 할 구체적인 행동 3~4개" },
+    encouragement: { type: "string", description: "응원 한마디" },
+  },
+} as const;
+
+const DIAG_SYSTEM = `너는 한국 중·고등학생의 학습 기록을 보고 과목별 진단을 해 주는 친절한 선생님이야.
+- 반드시 주어진 숫자(공부 시간, 계획 달성, 오답 이유, 모의 테스트 정답률)만 근거로 말해. 없는 숫자나 사실을 지어내지 마.
+- 기록이 거의 없으면 진단하기에는 기록이 부족하다고 솔직히 말하고, 기록을 쌓는 행동부터 제안해.
+- 비난하거나 점수·등수로 주눅 들게 하지 마. 구체적이고 작은 행동으로 제안해.
+- 다음 주 행동은 그 과목의 학습 방법과 연결하고, 한 번에 3~4개를 넘기지 마.
+- 쉬운 한국어로 짧게.`;
+
+export async function generateDiagnosis(input: { subject: string; grade: string | null; stats: SubjectStats }): Promise<Diagnosis> {
+  const s = input.stats;
+  const info = [
+    `과목: ${input.subject}`,
+    input.grade && `학년: ${input.grade}`,
+    `이번 주 공부: ${s.weekMinutes}분`,
+    `최근 4주 주별 공부(오래된 주 → 이번 주): ${s.last4Weeks.join(", ")}분`,
+    `최근 14일 계획: ${s.planTotal}개 중 ${s.planDone}개 완료`,
+    `최근 30일 오답: ${s.wrongTotal}개${s.wrongTotal ? ` (${reasonText(s.wrongByReason)})` : ""}`,
+    s.topUnits.length > 0 && `오답이 많은 단원: ${s.topUnits.join(", ")}`,
+    `최근 모의 테스트 정답률(최신순): ${s.mockPcts.length ? s.mockPcts.map((p) => `${p}%`).join(", ") : "응시 기록 없음"}`,
+  ].filter(Boolean).join("\n");
+  const raw = await callJson({
+    system: DIAG_SYSTEM,
+    text: `${info}\n\n이 기록으로 ${input.subject} 진단을 해 줘.`,
+    schemaName: "subject_diagnosis",
+    schema: DIAG_SCHEMA,
+    maxTokens: 1500,
+  });
+  const d = parseDiagnosis(raw);
+  if (!d) throw new AiError("AI 진단 결과가 비어 있어요. 잠시 뒤 다시 시도해 주세요.");
+  return d;
 }

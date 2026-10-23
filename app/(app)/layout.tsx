@@ -64,7 +64,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         { href: "/perf", label: "수행평가" },
       ],
     },
-    { group: "전략", items: [{ href: "/strategy", label: "과목별 전략", soon: true }] },
+    { group: "전략", items: [{ href: "/strategy", label: "과목별 전략" }] },
   ];
 
   return (
