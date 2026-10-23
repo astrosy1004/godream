@@ -2,11 +2,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { selectStudent, signOut } from "@/app/actions";
 import { Brand } from "@/components/Brand";
+import { NightlyPopup } from "@/components/NightlyPopup";
+import { PushToggle } from "@/components/PushToggle";
 import { NavLinks, type NavGroup } from "@/components/NavLinks";
 import { SetupNeeded } from "@/components/SetupNeeded";
 import { getViewContext } from "@/lib/auth";
 import { fmtMinutes, todayISO } from "@/lib/dates";
-import { fetchSessions, fetchTasks } from "@/lib/queries";
+import { countUnreadFeedback, fetchSessions, fetchTasks } from "@/lib/queries";
+import { fetchDayStatuses } from "@/lib/today-status";
+import { createClient } from "@/lib/supabase/server";
 import { supabaseEnv } from "@/lib/supabase/env";
 import { ROLE_LABEL } from "@/lib/types";
 
@@ -22,6 +26,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const today = todayISO();
   let left = 0;
   let minutes = 0;
+  let unread = 0;
+  let nightlyStatus = null;
+  if (me.role === "student") {
+    const [statuses, count] = await Promise.all([fetchDayStatuses(await createClient(), [me.id], today), countUnreadFeedback(me.id)]);
+    nightlyStatus = statuses.get(me.id) ?? null;
+    unread = count;
+  }
   if (student) {
     const [tasks, sessions] = await Promise.all([fetchTasks(student.id, today, today), fetchSessions(student.id, today, today)]);
     left = tasks.filter((t) => !t.done_at).length;
@@ -29,7 +40,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   const groups: NavGroup[] = [
-    { group: "홈", items: [{ href: "/dashboard", label: "대시보드" }] },
+    {
+      group: "홈",
+      items: [
+        { href: "/dashboard", label: "대시보드" },
+        { href: "/feedback", label: "피드백", badge: unread ? `새 글 ${unread}` : undefined },
+      ],
+    },
     {
       group: "계획",
       items: [
@@ -70,6 +87,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               {students.length === 0 && <span className="sm muted">연결된 학생이 없어요</span>}
             </div>
           )}
+          {me.role === "student" && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
+            <PushToggle vapidKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY} />
+          )}
           <div className="row" style={{ gap: 12 }}>
             <Link href="/link" className="sm">연결 관리</Link>
             <form action={signOut}>
@@ -82,6 +102,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </nav>
       </aside>
       <main className="main">{children}</main>
+      {nightlyStatus && <NightlyPopup status={nightlyStatus} date={today} />}
     </div>
   );
 }

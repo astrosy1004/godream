@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
+import type { FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
 
 export async function fetchSessions(studentId: string, from: string, to: string): Promise<StudySession[]> {
   const supabase = await createClient();
@@ -49,4 +49,25 @@ export async function fetchLessons(studentId: string, subject?: string): Promise
   if (subject) q = q.eq("subject", subject);
   const { data } = await q.order("lesson_on", { ascending: false }).order("created_at", { ascending: false }).limit(100);
   return (data ?? []) as unknown as LessonNote[];
+}
+
+export async function fetchFeedback(studentId: string): Promise<FeedbackRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("feedback")
+    .select("id, student_id, author_id, body, read_at, created_at, author:profiles!feedback_author_id_fkey(name, role)")
+    .eq("student_id", studentId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  return (data ?? []) as unknown as FeedbackRow[];
+}
+
+export async function countUnreadFeedback(studentId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("feedback")
+    .select("id", { count: "exact", head: true })
+    .eq("student_id", studentId)
+    .is("read_at", null);
+  return count ?? 0;
 }

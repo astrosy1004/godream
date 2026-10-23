@@ -40,6 +40,16 @@ export interface LessonNote {
   author: { name: string } | null;
 }
 
+export interface FeedbackRow {
+  id: string;
+  student_id: string;
+  author_id: string;
+  body: string;
+  read_at: string | null;
+  created_at: string;
+  author: { name: string; role: Role } | null;
+}
+
 export interface TimerRow {
   student_id: string;
   subject: string;
