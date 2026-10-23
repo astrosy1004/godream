@@ -10,6 +10,8 @@ export interface DayStatus {
   sessions: number;
   /** 오늘 쓴 수업 노트 수 */
   notes: number;
+  /** 마감이 3일 안인데 끝나지 않은 수행평가 (예: "과학 보고서 · D-2") */
+  perf?: string[];
 }
 
 export type Nightly =
@@ -26,14 +28,16 @@ export function buildNightly(s: DayStatus): Nightly {
       body: "계획, 공부 시간, 수업 노트 중 하나라도 남겨 두면 내일 이어서 하기 쉬워요.",
     };
   }
-  if (s.leftTitles.length > 0) {
-    const n = s.leftTitles.length;
-    const head = s.leftTitles.slice(0, 3).join(", ");
+  const perf = (s.perf ?? []).map((p) => `수행평가 ${p}`);
+  const items = [...s.leftTitles, ...perf];
+  if (items.length > 0) {
+    const n = items.length;
+    const head = items.slice(0, 3).join(", ");
     return {
       kind: "todo",
-      title: `오늘 남은 할 일 ${n}개`,
+      title: perf.length > 0 && s.leftTitles.length === 0 ? `마감이 다가오는 수행평가 ${perf.length}개` : `오늘 남은 할 일 ${n}개`,
       body: n > 3 ? `${head} 외 ${n - 3}개` : head,
-      titles: s.leftTitles,
+      titles: items,
     };
   }
   return null;

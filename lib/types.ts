@@ -112,6 +112,26 @@ export interface PrepUnit {
   stage: number;
 }
 
+export interface PerfStep {
+  id: string;
+  task_id: string;
+  title: string;
+  by_on: string;
+  done_at: string | null;
+}
+
+export interface PerfTask {
+  id: string;
+  student_id: string;
+  subject: string;
+  title: string;
+  kind: string;
+  points: number;
+  due_on: string;
+  notes: string;
+  steps: PerfStep[];
+}
+
 export interface TimerRow {
   student_id: string;
   subject: string;

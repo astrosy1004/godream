@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { PrepExam, PrepUnit, ExamScope, MockTest, WrongNote, FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
+import type { PerfStep, PerfTask, PrepExam, PrepUnit, ExamScope, MockTest, WrongNote, FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
 
 export async function fetchSessions(studentId: string, from: string, to: string): Promise<StudySession[]> {
   const supabase = await createClient();
@@ -124,4 +124,16 @@ export async function fetchPrepExams(studentId: string): Promise<PrepExam[]> {
   const byExam = new Map<string, PrepUnit[]>();
   for (const u of (units.data ?? []) as PrepUnit[]) byExam.set(u.exam_id, [...(byExam.get(u.exam_id) ?? []), u]);
   return ((exams.data ?? []) as Omit<PrepExam, "units">[]).map((e) => ({ ...e, units: byExam.get(e.id) ?? [] }));
+}
+
+/** 수행평가: 마감일 가까운 순으로 단계와 함께 */
+export async function fetchPerfTasks(studentId: string): Promise<PerfTask[]> {
+  const supabase = await createClient();
+  const [tasks, steps] = await Promise.all([
+    supabase.from("perf_tasks").select("id, student_id, subject, title, kind, points, due_on, notes").eq("student_id", studentId).order("due_on").limit(60),
+    supabase.from("perf_steps").select("id, task_id, title, by_on, done_at").eq("student_id", studentId).order("by_on").order("created_at").limit(1000),
+  ]);
+  const byTask = new Map<string, PerfStep[]>();
+  for (const s of (steps.data ?? []) as PerfStep[]) byTask.set(s.task_id, [...(byTask.get(s.task_id) ?? []), s]);
+  return ((tasks.data ?? []) as Omit<PerfTask, "steps">[]).map((t) => ({ ...t, steps: byTask.get(t.id) ?? [] }));
 }
