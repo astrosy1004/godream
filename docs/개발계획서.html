@@ -1,0 +1,313 @@
+<title>공부길 개발 계획서</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+/* Layout: 시험지 같은 문서. 좌측 고정 목차 + 읽기 폭 760px 본문. 파랑 잉크(구조), 형광펜(강조), 빨간 펜(리스크). */
+:root{
+  --bg:#EEF1F6;--grid:rgba(47,75,216,.05);--surface:#FFFFFF;--surface2:#F5F7FB;
+  --ink:#141B34;--ink2:#4A5372;--muted:#5F6785;--line:#DCE1EC;--line2:#C5CCDD;
+  --accent:#2F4BD8;--accent-ink:#FFFFFF;--accent-soft:#E3E8FD;--hl:#FFE66D;
+  --red:#D4333B;--red-soft:#FBE5E6;--good:#006300;--good-soft:#DDF3DD;--warn-soft:#FFF1CC;
+  --p0:#7C849E;--p1:#2F4BD8;--p2:#1b8f66;--p3:#b47a00;--p4:#c2487a;
+  --f-display:"Do Hyeon","IBM Plex Sans KR",sans-serif;--f-body:"IBM Plex Sans KR","Noto Sans KR",system-ui,sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1322;--grid:rgba(138,160,255,.05);--surface:#161C31;--surface2:#1C2340;
+    --ink:#EDF0FA;--ink2:#B1B9D2;--muted:#8F97B3;--line:#2A3252;--line2:#3A446A;
+    --accent:#8AA0FF;--accent-ink:#0E1322;--accent-soft:#232C57;--hl:rgba(255,214,10,.34);
+    --red:#FF7A80;--red-soft:#3A1F27;--good:#0ca30c;--good-soft:#16301C;--warn-soft:#3B3216;
+    --p0:#8F97B3;--p1:#8AA0FF;--p2:#34c28f;--p3:#e0a21a;--p4:#e87ba4;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1322;--grid:rgba(138,160,255,.05);--surface:#161C31;--surface2:#1C2340;
+  --ink:#EDF0FA;--ink2:#B1B9D2;--muted:#8F97B3;--line:#2A3252;--line2:#3A446A;
+  --accent:#8AA0FF;--accent-ink:#0E1322;--accent-soft:#232C57;--hl:rgba(255,214,10,.34);
+  --red:#FF7A80;--red-soft:#3A1F27;--good:#0ca30c;--good-soft:#16301C;--warn-soft:#3B3216;
+  --p0:#8F97B3;--p1:#8AA0FF;--p2:#34c28f;--p3:#e0a21a;--p4:#e87ba4;color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{background-color:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.75;padding-block:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+h1,h2,h3,p,ul,ol,table{margin:0}
+ul,ol{padding:0;list-style:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:200px minmax(0,1fr);gap:44px;padding-block:28px 80px}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;font-size:13.5px;max-height:calc(100vh - 40px);overflow:auto}
+.toc b{display:block;font-family:var(--f-display);font-weight:400;font-size:24px;line-height:1.2;margin-bottom:2px}
+.toc small{display:block;color:var(--muted);font-size:12px;margin-bottom:14px}
+.toc a{display:flex;gap:8px;color:var(--ink2);text-decoration:none;padding:3px 0;line-height:1.45}
+.toc a:hover{color:var(--ink)}
+.toc a i{font-style:normal;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);min-width:20px;padding-top:2px}
+.doc{min-width:0;max-width:780px}
+.cover{padding-bottom:26px;border-bottom:2px solid var(--ink);margin-bottom:34px}
+.cover .eb{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);letter-spacing:.05em}
+.cover h1{font-family:var(--f-display);font-weight:400;font-size:clamp(34px,6vw,54px);line-height:1.15;margin:6px 0 10px}
+.cover h1 span{background:linear-gradient(transparent 60%,var(--hl) 60%);padding:0 .1em}
+.cover p{color:var(--ink2);max-width:60ch}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px}
+.meta div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.meta small{display:block;color:var(--muted);font-size:12px;line-height:1.4}
+.meta b{font-weight:600;font-size:14.5px}
+section{margin-bottom:46px}
+h2{font-family:var(--f-display);font-weight:400;font-size:29px;line-height:1.25;margin-bottom:14px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+h2 .n{font-family:var(--f-mono);font-size:14px;color:var(--accent);border:1.5px solid var(--accent);border-radius:99px;padding:0 9px;line-height:1.7}
+h3{font-size:16px;font-weight:600;margin:20px 0 6px}
+p+p,p+ul,ul+p,p+.scroll,.scroll+p{margin-top:10px}
+.lead{font-size:17px;color:var(--ink)}
+ul.b li{position:relative;padding-left:16px;margin:4px 0}
+ul.b li::before{content:"";position:absolute;left:2px;top:.75em;width:6px;height:6px;border-radius:2px;background:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));margin-top:12px}
+.grid .card b{display:block;margin-bottom:2px}
+.scroll{overflow-x:auto;margin-top:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.55;min-width:560px}
+th{text-align:left;font-weight:600;font-size:12.5px;color:var(--ink2);padding:9px 12px;border-bottom:1.5px solid var(--line2);background:var(--surface2);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:500}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+code{background:var(--surface2);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+.tag{display:inline-block;font-size:12px;font-weight:500;border-radius:99px;padding:0 9px;line-height:1.65;background:var(--surface2);border:1px solid var(--line);color:var(--ink2);white-space:nowrap}
+.tag.must{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.tag.risk{background:var(--red-soft);color:var(--red);border-color:transparent}
+.tag.ok{background:var(--good-soft);color:var(--good);border-color:transparent}
+.note{background:var(--warn-soft);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px;margin-top:12px}
+.layers{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.layer{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:stretch}
+.layer>b{font-family:var(--f-display);font-weight:400;font-size:19px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;display:flex;align-items:center}
+.layer>div{display:flex;gap:8px;flex-wrap:wrap}
+.layer span{background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:6px 12px;font-size:13.5px;flex:1 1 130px;min-width:0}
+.layer span small{display:block;color:var(--muted);font-size:12px;line-height:1.4}
+.arrow{text-align:center;color:var(--muted);font-family:var(--f-mono);font-size:12px;line-height:1}
+.gantt{display:grid;grid-template-columns:150px repeat(18,minmax(18px,1fr));gap:4px 2px;min-width:640px;padding:12px;font-size:12.5px;align-items:center}
+.gantt .wk{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-align:center}
+.gantt .nm{padding-right:6px;line-height:1.35}
+.gantt .bar{height:24px;border-radius:5px;background:var(--c);color:#fff;font-size:11.5px;padding:0 6px;display:flex;align-items:center;white-space:nowrap;overflow:hidden;font-weight:500}
+.gantt .bar.dk{color:#141B34}
+.ms{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.ms div{flex:1 1 150px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.ms b{display:block;font-family:var(--f-mono);font-size:12px;color:var(--accent)}
+footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line2);padding-top:14px}
+@media (max-width:900px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:20px}
+  .toc{position:static;max-height:none;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .toc nav{columns:2;column-gap:20px}
+  .layer{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:480px){.toc nav{columns:1}h2{font-size:25px}}
+@media print{.toc{display:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+<div class="wrap">
+<aside class="toc"><b>공부길</b><small>개발 계획서 · v1.0</small>
+<nav aria-label="목차">
+<a href="#s1"><i>01</i>개요와 목표</a>
+<a href="#s2"><i>02</i>현재 상태</a>
+<a href="#s3"><i>03</i>기능 범위와 우선순위</a>
+<a href="#s4"><i>04</i>사용자와 권한</a>
+<a href="#s5"><i>05</i>시스템 구조</a>
+<a href="#s6"><i>06</i>기술 스택</a>
+<a href="#s7"><i>07</i>데이터 모델</a>
+<a href="#s8"><i>08</i>AI 기능 설계</a>
+<a href="#s9"><i>09</i>개인정보·안전</a>
+<a href="#s10"><i>10</i>개발 일정</a>
+<a href="#s11"><i>11</i>팀 구성</a>
+<a href="#s12"><i>12</i>품질과 테스트</a>
+<a href="#s13"><i>13</i>성공 지표</a>
+<a href="#s14"><i>14</i>리스크</a>
+<a href="#s15"><i>15</i>결정이 필요한 항목</a>
+</nav></aside>
+<article class="doc">
+<header class="cover"><div class="eb">DEVELOPMENT PLAN · 2026.10.23 작성</div><h1><span>공부길</span> 개발 계획서</h1>
+<p>중·고등학생이 수업 내용과 오답을 정리하고, 시험과 수행평가를 준비하고, 공부 시간을 관리하는 학습 플랫폼을 실제 서비스로 만들기 위한 계획입니다.</p>
+<div class="meta"><div><small>대상</small><b>중1 ~ 고3 학생</b></div><div><small>함께 쓰는 사람</small><b>학부모 · 선생님</b></div><div><small>개발 기간(가정)</small><b>18주</b></div><div><small>출시 형태</small><b>웹 + PWA</b></div></div></header>
+<section id="s1"><h2><span class="n">01</span>개요와 목표</h2>
+<p class="lead">공부 내용을 기록하고, 약한 부분을 찾아 반복하고, 시험까지 남은 시간을 계획으로 바꿔 주는 학생 중심 서비스입니다.</p>
+<div class="grid">
+<div class="card"><b>해결할 문제</b><span class="sm">수업 메모, 오답, 시험 일정, 공부 시간이 노트·사진·앱에 흩어져 있어 복습 시점을 놓친다.</span></div>
+<div class="card"><b>핵심 가치</b><span class="sm">기록은 쉽게, 분석은 자동으로, 다음 할 일은 구체적으로. 학부모·선생님은 같은 데이터를 열람하며 응원한다.</span></div>
+<div class="card"><b>하지 않는 것</b><span class="sm">정답 대신 풀어 주기, 수행평가 대필, 학생 간 순위 경쟁. 학습 습관과 이해를 돕는 데 집중한다.</span></div>
+</div></section>
+
+<section id="s2"><h2><span class="n">02</span>현재 상태</h2>
+<p>10개 기능 화면이 있는 웹 프로토타입이 완성되어 있습니다. 데이터는 브라우저 저장소에만 있고 AI 분석은 Claude 연결 화면에서만 켜집니다.</p>
+<div class="scroll"><table><thead><tr><th>구분</th><th>프로토타입</th><th>실서비스에서 바뀌는 것</th></tr></thead><tbody>
+<tr><td>데이터 저장</td><td>브라우저 localStorage, 예시 데이터</td><td>서버 DB, 계정별 저장, 기기 간 동기화</td></tr>
+<tr><td>사용자</td><td>화면 전환으로 학생·학부모 모드 시뮬레이션</td><td>실제 계정, 초대·연결, 권한 분리</td></tr>
+<tr><td>사진</td><td>축소본을 브라우저에 저장</td><td>객체 스토리지에 원본 저장, 접근 제어</td></tr>
+<tr><td>AI</td><td>화면에서 직접 호출</td><td>서버에서 호출, 사용량·비용 관리, 결과 저장</td></tr>
+<tr><td>알림</td><td>없음</td><td>복습 시점, 마감, 시험 D-day 푸시 알림</td></tr>
+</tbody></table></div>
+<p>화면 구성, 용어, 계산 규칙(D-day 로드맵, 복습 주기, 달성률)은 프로토타입을 기준 명세로 재사용합니다.</p></section>
+
+<section id="s3"><h2><span class="n">03</span>기능 범위와 우선순위</h2>
+<p>우선순위는 출시에 꼭 필요한지(필수), 출시 직후 가치가 큰지(중요), 이후에 해도 되는지(후순위)로 나눴습니다.</p>
+<div class="scroll"><table><thead><tr><th>기능</th><th>우선순위</th><th>AI 의존</th><th>핵심 요구사항</th></tr></thead><tbody>
+<tr><td>학습 계획</td><td><span class="tag must">필수</span></td><td>선택</td><td>주간 계획표, 완료 체크, 시험·약점 기반 자동 계획</td></tr>
+<tr><td>혼공 타이머</td><td><span class="tag must">필수</span></td><td>없음</td><td>서버 시각 기준 기록, 앱을 닫아도 유지, 일일 목표, 연속일</td></tr>
+<tr><td>대시보드</td><td><span class="tag must">필수</span></td><td>없음</td><td>공부 시간, 점수 추이, 과목별 현황, 코멘트</td></tr>
+<tr><td>오답노트</td><td><span class="tag must">필수</span></td><td>높음</td><td>사진 업로드, 틀린 이유 분류, AI 분석, 복습 상태</td></tr>
+<tr><td>수업 노트</td><td><span class="tag must">필수</span></td><td>중간</td><td>핵심 정리, 숙제, 다음 수업 질문, 선생님 작성</td></tr>
+<tr><td>시험 대비</td><td><span class="tag">중요</span></td><td>없음</td><td>D-day 역산 로드맵, 단원별 3단계 진행도</td></tr>
+<tr><td>시험 범위·암기</td><td><span class="tag">중요</span></td><td>높음</td><td>시험지 사진 해석, 단원별 암기법, 복습 일정</td></tr>
+<tr><td>주간 모의 테스트</td><td><span class="tag">중요</span></td><td>높음</td><td>문제 생성, 채점, 오답노트 연동, 기록</td></tr>
+<tr><td>수행평가</td><td><span class="tag">중요</span></td><td>중간</td><td>유형별 단계, 단계별 기한, 마감 알림</td></tr>
+<tr><td>과목별 전략</td><td><span class="tag">후순위</span></td><td>선택</td><td>과목별 안내 콘텐츠, 내 기록 기반 진단</td></tr>
+</tbody></table></div></section>
+
+<section id="s4"><h2><span class="n">04</span>사용자와 권한</h2>
+<div class="scroll"><table><thead><tr><th>역할</th><th>할 수 있는 일</th><th>볼 수 없는 것</th></tr></thead><tbody>
+<tr><td>학생</td><td>모든 기록 작성·수정·삭제, AI 분석 요청, 보호자·선생님 초대</td><td>다른 학생 데이터</td></tr>
+<tr><td>학부모</td><td>연결된 자녀의 대시보드·계획·오답 열람, 코멘트 작성</td><td>학생이 비공개로 둔 메모</td></tr>
+<tr><td>선생님</td><td>연결된 학생의 수업 노트 작성, 과목 범위 열람, 코멘트 작성</td><td>자기 과목 외 상세 기록(학생 설정에 따름)</td></tr>
+</tbody></table></div>
+<ul class="b" style="margin-top:12px"><li>연결은 학생이 만든 초대 코드로 시작하고, 학생이 언제든 해제할 수 있습니다.</li><li>열람 범위는 항목별 스위치(점수, 오답 사진, 메모)로 학생이 조절합니다.</li><li>한 명의 학부모·선생님이 여러 학생을 볼 수 있어야 하므로 연결 테이블로 모델링합니다.</li></ul></section>
+
+<section id="s5"><h2><span class="n">05</span>시스템 구조</h2>
+<p>웹앱 한 개가 화면과 API를 함께 제공하고, 무거운 AI 작업은 비동기 작업으로 분리합니다.</p>
+<div class="layers">
+<div class="layer"><b>클라이언트</b><div><span>학생·학부모·선생님 웹앱<small>Next.js, PWA 설치</small></span><span>푸시 알림<small>웹 푸시</small></span></div></div>
+<div class="arrow">HTTPS · 인증 쿠키</div>
+<div class="layer"><b>애플리케이션</b><div><span>API 라우트<small>인증, 권한 검사, 입력 검증</small></span><span>작업 큐<small>AI 분석, 알림 발송, 리포트 생성</small></span></div></div>
+<div class="arrow">서버 간 호출</div>
+<div class="layer"><b>데이터·AI</b><div><span>PostgreSQL<small>계정, 기록, 권한</small></span><span>객체 스토리지<small>오답·시험지 사진</small></span><span>Claude API<small>이미지 포함 분석, JSON 출력</small></span></div></div>
+</div>
+<div class="note">타이머는 시작 시각을 서버에 저장하고 경과 시간은 항상 서버 시각으로 계산합니다. 탭을 닫거나 기기를 바꿔도 기록이 어긋나지 않게 하기 위해서입니다.</div></section>
+
+<section id="s6"><h2><span class="n">06</span>기술 스택</h2>
+<div class="scroll"><table><thead><tr><th>영역</th><th>선택</th><th>이유</th></tr></thead><tbody>
+<tr><td>프레임워크</td><td>Next.js(App Router) + TypeScript</td><td>화면과 API를 한 코드베이스로 관리, 프로토타입 로직 재사용</td></tr>
+<tr><td>스타일</td><td>CSS 변수 토큰 + Tailwind</td><td>프로토타입의 라이트·다크 토큰을 그대로 이식</td></tr>
+<tr><td>데이터베이스</td><td>PostgreSQL (Supabase 또는 Neon) + Drizzle</td><td>관계형 데이터가 많고 행 단위 접근 제어가 필요</td></tr>
+<tr><td>인증</td><td>이메일 + 카카오·구글 로그인</td><td>학생 접근성, 보호자 초대 흐름</td></tr>
+<tr><td>파일</td><td>S3 호환 스토리지, 서명 URL</td><td>사진은 비공개로 저장하고 짧은 유효시간 URL로만 노출</td></tr>
+<tr><td>AI</td><td>Claude API (서버 호출)</td><td>이미지 입력과 구조화된 JSON 응답, 키는 서버에만 보관</td></tr>
+<tr><td>배포·운영</td><td>Vercel, Sentry, PostHog</td><td>빠른 배포, 오류 추적, 사용 지표</td></tr>
+</tbody></table></div>
+<p class="sm" style="color:var(--muted)">위 선택은 제안입니다. 팀의 숙련도에 따라 바꿔도 구조에는 영향이 없습니다.</p></section>
+<style>
+:root{--on:#fff;--p3:#946200}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--on:#0E1322}}
+:root[data-theme="dark"]{--on:#0E1322}
+.sm{font-size:14px}
+.gantt .bar{color:var(--on)}
+</style>
+<section id="s7"><h2><span class="n">07</span>데이터 모델</h2>
+<p>모든 기록은 <code>student_id</code>를 기준으로 묶고, 조회 권한은 <code>links</code>에서 확인합니다.</p>
+<div class="scroll"><table><thead><tr><th>테이블</th><th>역할</th><th>주요 컬럼</th></tr></thead><tbody>
+<tr><td>users</td><td>계정</td><td>id, role, name, email, birth_year</td></tr>
+<tr><td>student_profiles</td><td>학생 설정</td><td>user_id, grade, goal_minutes</td></tr>
+<tr><td>links</td><td>학생과 학부모·선생님 연결</td><td>student_id, member_id, relation, scopes, status</td></tr>
+<tr><td>study_sessions</td><td>공부 시간</td><td>student_id, subject, started_at, ended_at, minutes</td></tr>
+<tr><td>plan_tasks</td><td>학습 계획</td><td>student_id, date, subject, title, minutes, done_at</td></tr>
+<tr><td>lessons, lesson_homework</td><td>수업 노트와 숙제</td><td>author_id, subject, title, points, question / text, done_at</td></tr>
+<tr><td>wrong_notes</td><td>오답노트</td><td>subject, unit, reason, memo, image_key, status, ai_result</td></tr>
+<tr><td>exams, exam_units</td><td>시험과 단원 진행도</td><td>name, date / subject, title, stage(0~3)</td></tr>
+<tr><td>memo_plans</td><td>암기 전략 결과</td><td>subject, source_keys, topics</td></tr>
+<tr><td>mock_tests</td><td>모의 테스트 기록</td><td>subject, scope, questions, score, taken_at</td></tr>
+<tr><td>perf_tasks, perf_steps</td><td>수행평가와 단계</td><td>title, type, due, points / title, due, done_at</td></tr>
+<tr><td>comments</td><td>코멘트</td><td>student_id, author_id, text</td></tr>
+<tr><td>ai_jobs</td><td>AI 호출 기록</td><td>kind, status, output, tokens_in, tokens_out, cost</td></tr>
+<tr><td>notifications</td><td>알림 예약·발송</td><td>user_id, kind, payload, send_at, sent_at</td></tr>
+</tbody></table></div></section>
+
+<section id="s8"><h2><span class="n">08</span>AI 기능 설계</h2>
+<p>AI는 서버에서만 호출하고, 응답은 정해진 JSON 형식으로 받아 검증한 뒤 저장합니다. 모든 AI 기능은 실패해도 기본 기능이 동작해야 합니다.</p>
+<div class="scroll"><table><thead><tr><th>기능</th><th>입력</th><th>출력</th><th>목표 지연</th><th>실패 시 대체</th></tr></thead><tbody>
+<tr><td>오답 분석</td><td>문제 사진 1장, 과목·단원·메모</td><td>핵심 개념, 틀린 이유, 바로잡기, 연습 문제, 팁</td><td>15초</td><td>직접 입력 저장 유지, 재시도</td></tr>
+<tr><td>수업 정리</td><td>수업 메모 텍스트</td><td>제목, 핵심 정리, 숙제, 질문</td><td>5초</td><td>줄 단위 규칙 정리</td></tr>
+<tr><td>암기 전략</td><td>시험지 사진 최대 3장, 범위 텍스트</td><td>단원별 핵심, 암기법, 방법 설명</td><td>20초</td><td>범위 줄 단위 기본 전략</td></tr>
+<tr><td>모의 테스트</td><td>과목, 범위, 학년</td><td>4지선다 문항과 해설</td><td>20초</td><td>내장 문제 은행</td></tr>
+<tr><td>자동 계획</td><td>시험일, 점수, 대기 오답</td><td>날짜별 할 일 목록</td><td>8초</td><td>규칙 기반 배치</td></tr>
+<tr><td>수행평가 단계</td><td>제목, 유형, 마감일</td><td>단계와 기한</td><td>5초</td><td>유형별 기본 단계</td></tr>
+<tr><td>과목 진단</td><td>점수, 시간, 오답 요약</td><td>5줄 텍스트</td><td>15초</td><td>과목별 안내 콘텐츠</td></tr>
+</tbody></table></div>
+<h3>품질을 지키는 장치</h3>
+<ul class="b"><li>응답은 스키마로 검증하고, 형식이 틀리면 한 번만 재요청한 뒤 대체 경로로 넘어갑니다.</li><li>수학·과학 풀이에는 “AI 분석은 참고용”을 표시하고, 학생이 잘못된 분석을 신고하는 버튼을 둡니다.</li><li>과목별 평가 문항 세트를 만들어 출시 전과 프롬프트 변경 때마다 정확도를 확인합니다.</li><li>학생별 일일 호출 상한, 같은 입력 캐시, 이미지 해상도 제한으로 비용을 관리합니다.</li><li>수행평가는 단계 계획과 점검 질문만 돕고 완성된 글이나 발표 대본은 대신 써 주지 않습니다.</li></ul></section>
+
+<section id="s9"><h2><span class="n">09</span>개인정보·안전</h2>
+<p>사용자 대부분이 미성년자이므로 설계 단계부터 개인정보 보호를 기본값으로 둡니다.</p>
+<ul class="b"><li>만 14세 미만 가입자는 법정대리인 동의 절차가 필요할 수 있습니다. 중학교 저학년이 대상에 포함되므로 Phase 0에서 법률 검토를 받고 가입 흐름에 반영합니다.</li><li>수집 항목은 서비스에 필요한 최소한으로 하고, 사진은 비공개 스토리지에 저장하며 짧은 유효시간의 URL로만 보여 줍니다.</li><li>전송과 저장 모두 암호화하고, 학부모·선생님의 열람 기록을 남깁니다.</li><li>AI 제공자로 전송되는 데이터의 범위를 가입 시 고지하고, 입력 데이터가 모델 학습에 쓰이지 않는지 계약·설정을 확인합니다.</li><li>사진 업로드 화면에 이름·학번이 보이면 가리도록 안내하고, 이미지 메타데이터는 제거합니다.</li><li>학교 시험지는 본인 학습 용도로만 쓰고 다른 사용자와 공유하거나 문제 은행에 재사용하지 않습니다.</li><li>탈퇴하면 계정과 사진을 정해진 기간 안에 삭제합니다.</li></ul>
+<div class="note">법령과 해석은 바뀔 수 있으므로 출시 전에 전문가 확인이 필요합니다. 이 문서는 법률 자문이 아닙니다.</div></section>
+
+<section id="s10"><h2><span class="n">10</span>개발 일정</h2>
+<p>18주를 다섯 단계로 나눕니다. 각 단계 끝에 사용할 수 있는 상태로 배포하는 것을 원칙으로 합니다.</p>
+<div class="scroll"><div class="gantt" role="img" aria-label="18주 개발 일정 간트 차트">
+<div></div><div class="wk">1</div><div class="wk">2</div><div class="wk">3</div><div class="wk">4</div><div class="wk">5</div><div class="wk">6</div><div class="wk">7</div><div class="wk">8</div><div class="wk">9</div><div class="wk">10</div><div class="wk">11</div><div class="wk">12</div><div class="wk">13</div><div class="wk">14</div><div class="wk">15</div><div class="wk">16</div><div class="wk">17</div><div class="wk">18</div>
+<div class="nm" style="grid-column:1;grid-row:2">0단계 준비</div><div class="bar" style="--c:var(--p0);grid-column:2/4;grid-row:2">1~2주</div>
+<div class="nm" style="grid-column:1;grid-row:3">인증·권한·초대</div><div class="bar" style="--c:var(--p1);grid-column:4/6;grid-row:3">3~4주</div>
+<div class="nm" style="grid-column:1;grid-row:4">학습 계획·타이머</div><div class="bar" style="--c:var(--p1);grid-column:5/8;grid-row:4">4~6주</div>
+<div class="nm" style="grid-column:1;grid-row:5">오답노트 + AI</div><div class="bar" style="--c:var(--p1);grid-column:6/10;grid-row:5">5~8주</div>
+<div class="nm" style="grid-column:1;grid-row:6">대시보드·수업 노트</div><div class="bar" style="--c:var(--p1);grid-column:7/10;grid-row:6">6~8주</div>
+<div class="nm" style="grid-column:1;grid-row:7">시험 범위·암기</div><div class="bar" style="--c:var(--p2);grid-column:10/12;grid-row:7">9~10주</div>
+<div class="nm" style="grid-column:1;grid-row:8">주간 모의 테스트</div><div class="bar" style="--c:var(--p2);grid-column:11/14;grid-row:8">10~12주</div>
+<div class="nm" style="grid-column:1;grid-row:9">시험 대비·수행평가</div><div class="bar" style="--c:var(--p2);grid-column:12/15;grid-row:9">11~13주</div>
+<div class="nm" style="grid-column:1;grid-row:10">과목별 전략</div><div class="bar" style="--c:var(--p2);grid-column:14/15;grid-row:10">13주</div>
+<div class="nm" style="grid-column:1;grid-row:11">알림·성능·접근성·보안</div><div class="bar" style="--c:var(--p3);grid-column:15/18;grid-row:11">14~16주</div>
+<div class="nm" style="grid-column:1;grid-row:12">파일럿 베타·출시</div><div class="bar" style="--c:var(--p4);grid-column:18/20;grid-row:12">17~18주</div>
+</div></div>
+<div class="ms">
+<div><b>1~2주 · 0단계</b>요구사항 확정, 디자인 시스템 이식, 법률 검토 착수, AI 평가 문항 준비</div>
+<div><b>3~8주 · 1단계</b>핵심 기록 기능과 오답 AI 분석, 내부 사용 시작</div>
+<div><b>9~13주 · 2단계</b>시험·수행평가 기능, 모의 테스트</div>
+<div><b>14~16주 · 3단계</b>알림, 접근성 AA, 성능·보안 점검</div>
+<div><b>17~18주 · 4단계</b>학생 20~30명 파일럿, 수정 후 출시</div>
+</div></section>
+
+<section id="s11"><h2><span class="n">11</span>팀 구성</h2>
+<div class="scroll"><table><thead><tr><th>역할</th><th>인원(가정)</th><th>주요 책임</th></tr></thead><tbody>
+<tr><td>기획·PM</td><td>1</td><td>요구사항, 파일럿 운영, 지표 관리</td></tr>
+<tr><td>디자이너</td><td>1</td><td>디자인 시스템, 모바일 우선 화면, 사용성 테스트</td></tr>
+<tr><td>프론트엔드</td><td>2</td><td>화면, 차트, PWA, 접근성</td></tr>
+<tr><td>백엔드</td><td>1</td><td>인증·권한, DB, 작업 큐, 알림</td></tr>
+<tr><td>AI·데이터</td><td>0.5</td><td>프롬프트, 평가 문항, 비용 관리</td></tr>
+<tr><td>QA</td><td>0.5</td><td>E2E, 권한 테스트, 기기 점검</td></tr>
+<tr><td>법률 자문</td><td>외부</td><td>개인정보·약관 검토</td></tr>
+</tbody></table></div></section>
+
+<section id="s12"><h2><span class="n">12</span>품질과 테스트</h2>
+<ul class="b"><li><b>단위 테스트</b>: D-day와 주 경계 계산, 달성률, 연속 공부일, 복습 일정 날짜.</li><li><b>권한 테스트</b>: 학생 간 데이터 격리, 연결 해제 후 접근 차단, 항목별 열람 범위.</li><li><b>E2E 테스트</b>: 가입, 계획 추가와 체크, 타이머 기록, 오답 업로드와 분석, 학부모 초대 열람.</li><li><b>AI 평가</b>: 과목별 평가 문항으로 정확도와 형식 오류율을 측정하고, 프롬프트를 바꿀 때마다 다시 실행합니다.</li><li><b>접근성·반응형</b>: 키보드 조작, 명도 대비 AA, 360px 폭, 라이트·다크 테마.</li><li><b>성능·보안</b>: 첫 화면 표시 시간 목표 설정, 파일 업로드 검증, 일반적인 웹 취약점 점검.</li></ul></section>
+
+<section id="s13"><h2><span class="n">13</span>성공 지표</h2>
+<p>아래 목표는 초기 가설이며 파일럿 결과를 보고 조정합니다.</p>
+<div class="scroll"><table><thead><tr><th>지표</th><th>정의</th><th>가설 목표</th></tr></thead><tbody>
+<tr><td>7일 재방문율</td><td>가입 후 7일째 다시 사용한 학생 비율</td><td>40%</td></tr>
+<tr><td>주당 타이머 사용일</td><td>활성 학생의 평균 사용 일수</td><td>3일 이상</td></tr>
+<tr><td>오답 복습 완료율</td><td>저장한 오답 중 복습 완료로 바뀐 비율</td><td>60%</td></tr>
+<tr><td>주간 계획 달성률</td><td>완료한 할 일 ÷ 계획한 할 일</td><td>65%</td></tr>
+<tr><td>연결 비율</td><td>학부모·선생님이 연결된 학생 비율</td><td>30%</td></tr>
+<tr><td>AI 분석 만족도</td><td>분석 결과에 도움이 됐다고 답한 비율</td><td>80%</td></tr>
+</tbody></table></div></section>
+
+<section id="s14"><h2><span class="n">14</span>리스크</h2>
+<div class="scroll"><table><thead><tr><th>리스크</th><th>수준</th><th>대응</th></tr></thead><tbody>
+<tr><td>AI 풀이·분석 오류</td><td><span class="tag risk">높음</span></td><td>참고용 표시, 신고 버튼, 수학 검산, 과목별 평가 문항으로 출시 전 점검</td></tr>
+<tr><td>학생이 꾸준히 쓰지 않음</td><td><span class="tag risk">높음</span></td><td>타이머·계획 같은 일상 기능을 먼저 완성, 복습 알림, 주간 리포트, 파일럿 인터뷰</td></tr>
+<tr><td>미성년자 개인정보 규정</td><td><span class="tag risk">높음</span></td><td>Phase 0 법률 검토, 동의 흐름과 열람 범위 설계, 최소 수집</td></tr>
+<tr><td>사진 품질(흐림·기울기)</td><td><span class="tag">중간</span></td><td>촬영 가이드, 업로드 시 품질 검사, 재촬영 안내</td></tr>
+<tr><td>AI 비용 초과</td><td><span class="tag">중간</span></td><td>일일 상한, 캐시, 빠른 모델 우선, 이미지 크기 제한, 비용 대시보드</td></tr>
+<tr><td>학부모 열람에 대한 학생 반발</td><td><span class="tag">중간</span></td><td>열람 범위를 학생이 조절, 연결 해제 가능</td></tr>
+<tr><td>시험지 저작권</td><td><span class="tag">중간</span></td><td>약관에 개인 학습 용도 명시, 공유·재사용 금지</td></tr>
+<tr><td>일정 지연</td><td><span class="tag">중간</span></td><td>단계별 배포, 과목별 전략 같은 후순위 기능 분리</td></tr>
+</tbody></table></div></section>
+
+<section id="s15"><h2><span class="n">15</span>결정이 필요한 항목</h2>
+<p>아래 항목은 일정과 비용에 영향이 커서 Phase 0 안에 정해야 합니다.</p>
+<div class="scroll"><table><thead><tr><th>항목</th><th>선택지</th><th>영향</th></tr></thead><tbody>
+<tr><td>사업 모델</td><td>개인용 앱 / 학원·과외 대상 B2B</td><td>선생님 기능 범위, 과금 방식</td></tr>
+<tr><td>대상 학년</td><td>중1~고3 전체 / 고등 우선</td><td>콘텐츠 범위, AI 평가 문항 수</td></tr>
+<tr><td>과금</td><td>무료 + AI 사용 한도 유료 / 구독</td><td>AI 비용 구조</td></tr>
+<tr><td>알림 채널</td><td>웹 푸시 / 카카오 알림톡 추가</td><td>도달률, 건당 비용</td></tr>
+<tr><td>개발 주체</td><td>내부 팀 / 외주</td><td>일정, 인력 구성</td></tr>
+</tbody></table></div></section>
+
+<footer>일정, 인원, 목표 수치는 가정이며 Phase 0에서 확정합니다. 기능 동작의 기준은 공개된 공부길 프로토타입입니다.</footer>
+</article>
+</div>

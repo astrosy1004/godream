@@ -1,0 +1,739 @@
+<title>공부길</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+/* Layout: 채점 노트. 좌측 색인 사이드바 + 모눈종이 본문. 파랑 잉크(행동), 형광펜(강조), 빨간 펜(오답)만 포인트로 쓴다. 모바일에서는 상단 탭 스트립. */
+:root{
+  --bg:#EEF1F6; --grid:rgba(47,75,216,.05); --surface:#FFFFFF; --surface2:#F5F7FB;
+  --ink:#141B34; --ink2:#4A5372; --muted:#5F6785; --line:#DCE1EC; --line2:#C5CCDD;
+  --accent:#2F4BD8; --accent-ink:#FFFFFF; --accent-soft:#E3E8FD; --hl-line:#FFE66D;
+  --red:#D4333B; --red-soft:#FBE5E6; --good:#006300; --good-soft:#DDF3DD; --warn-soft:#FFF1CC;
+  --s-math:#2a78d6; --s-kor:#eb6834; --s-eng:#1baf7a; --s-sci:#eda100; --s-soc:#e87ba4;
+  --f-display:"Do Hyeon","IBM Plex Sans KR",sans-serif;
+  --f-body:"IBM Plex Sans KR","Noto Sans KR",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1322; --grid:rgba(138,160,255,.05); --surface:#161C31; --surface2:#1C2340;
+    --ink:#EDF0FA; --ink2:#B1B9D2; --muted:#8F97B3; --line:#2A3252; --line2:#3A446A;
+    --accent:#8AA0FF; --accent-ink:#0E1322; --accent-soft:#232C57; --hl-line:rgba(255,214,10,.34);
+    --red:#FF7A80; --red-soft:#3A1F27; --good:#0ca30c; --good-soft:#16301C; --warn-soft:#3B3216;
+    --s-math:#3987e5; --s-kor:#d95926; --s-eng:#199e70; --s-sci:#c98500; --s-soc:#d55181;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1322; --grid:rgba(138,160,255,.05); --surface:#161C31; --surface2:#1C2340;
+  --ink:#EDF0FA; --ink2:#B1B9D2; --muted:#8F97B3; --line:#2A3252; --line2:#3A446A;
+  --accent:#8AA0FF; --accent-ink:#0E1322; --accent-soft:#232C57; --hl-line:rgba(255,214,10,.34);
+  --red:#FF7A80; --red-soft:#3A1F27; --good:#0ca30c; --good-soft:#16301C; --warn-soft:#3B3216;
+  --s-math:#3987e5; --s-kor:#d95926; --s-eng:#199e70; --s-sci:#c98500; --s-soc:#d55181;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background-color:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3,p,ul,ol{margin:0}
+ul,ol{padding:0;list-style:none}
+.mono{font-family:var(--f-mono)}
+.muted{color:var(--ink2)}
+.sm{font-size:13px}
+.shell{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:232px minmax(0,1fr);gap:28px;padding-block:22px 64px}
+.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 32px);overflow:auto}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:36px;height:36px;flex:none}
+.brand b{font-family:var(--f-display);font-weight:400;font-size:27px;line-height:1.1;display:block}
+.brand small{display:block;color:var(--muted);font-size:12px;line-height:1.2}
+.role{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px}
+.role button{border:0;background:transparent;border-radius:7px;padding:7px 4px;font-size:13px;font-weight:500;color:var(--ink2)}
+.role button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .grp{font-size:11px;letter-spacing:.1em;color:var(--muted);margin:14px 10px 4px;font-family:var(--f-mono)}
+.nav button{display:flex;align-items:center;justify-content:space-between;gap:8px;border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:8px;color:var(--ink2);font-weight:500;font-size:14px}
+.nav button:hover{background:var(--surface)}
+.nav button[aria-current=page]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.nav .lb{padding:0 2px}
+.nav button[aria-current=page] .lb{background:linear-gradient(transparent 58%,var(--hl-line) 58%)}
+.bd{font-family:var(--f-mono);font-size:11px;padding:0 7px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);color:var(--ink2);line-height:1.6;white-space:nowrap}
+.bd.red{background:var(--red-soft);color:var(--red);border-color:transparent}
+.main{min-width:0;display:flex;flex-direction:column;gap:18px}
+.ph h1{font-family:var(--f-display);font-weight:400;font-size:clamp(28px,4.6vw,40px);line-height:1.2}
+.ph h1 span{background:linear-gradient(transparent 60%,var(--hl-line) 60%);padding:0 .12em}
+.ph p{margin-top:6px;color:var(--ink2);max-width:64ch}
+.eyebrow{font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.04em;margin-bottom:2px}
+.banner{background:var(--warn-soft);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13.5px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.card>h2,.ch{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.g2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr))}
+.kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))}
+.kpi .l{font-size:13px;color:var(--ink2)}
+.kpi .v{font-family:var(--f-display);font-size:36px;line-height:1.15;margin:2px 0}
+.kpi .v small{font-size:16px;font-family:var(--f-body);color:var(--ink2)}
+.dl{font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+.dl.up{color:var(--good)}.dl.dn{color:var(--red)}.dl.eq{color:var(--ink2)}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:9px;padding:8px 14px;font-weight:500;font-size:14px;display:inline-flex;gap:6px;align-items:center;justify-content:center;min-height:38px}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.quiet{background:transparent;border-color:var(--line2);color:var(--ink2)}
+.btn.s{padding:3px 10px;font-size:13px;min-height:30px}
+.in{width:100%;border:1px solid var(--line2);background:var(--surface);border-radius:8px;padding:8px 10px;min-height:38px;color:var(--ink)}
+textarea.in{resize:vertical;min-height:88px;line-height:1.5}
+.lab{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--ink2);min-width:0;flex:1 1 140px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.row>*{min-width:0}
+.stack{display:flex;flex-direction:column;gap:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line2);background:var(--surface);border-radius:99px;padding:3px 11px;font-size:13px;display:inline-flex;gap:6px;align-items:center;color:var(--ink2);min-height:30px}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sw{width:10px;height:10px;border-radius:3px;background:var(--c);flex:none;display:inline-block}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:18px;height:18px;flex:none;margin:0}
+.bar{height:8px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c,var(--accent));border-radius:99px}
+.tb{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+.tb th{text-align:left;font-weight:500;font-size:12.5px;color:var(--ink2);padding:6px 8px;border-bottom:1px solid var(--line2)}
+.tb td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.scroll{overflow-x:auto}
+.stamp{display:inline-block;font-family:var(--f-display);font-size:14px;color:var(--red);border:2px solid var(--red);border-radius:6px;padding:0 7px;transform:rotate(-4deg);line-height:1.5;white-space:nowrap}
+.stamp.ok{color:var(--good);border-color:var(--good);border-radius:99px;transform:none}
+.todo{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line)}
+.todo:last-child{border-bottom:0}
+.todo.done .tt{text-decoration:line-through;color:var(--muted)}
+.todo .tt{flex:1;min-width:0;overflow-wrap:anywhere}
+.x{border:0;background:transparent;color:var(--muted);font-size:18px;line-height:1;padding:2px 6px;border-radius:6px}
+.x:hover{color:var(--red)}
+.cols{display:flex;align-items:stretch;gap:10px;height:200px;position:relative}
+.col{flex:1;min-width:0;position:relative;display:flex;align-items:flex-end;justify-content:center;border-radius:6px}
+.col .stackbar{width:min(100%,38px);display:flex;flex-direction:column-reverse;gap:2px}
+.col .seg{background:var(--c);min-height:2px}
+.col .seg:last-child{border-radius:4px 4px 0 0}
+.col .tot{position:absolute;left:0;right:0;text-align:center;font-family:var(--f-mono);font-size:11px;color:var(--ink2)}
+.dayl{display:flex;gap:10px;margin-top:6px}
+.dayl span{flex:1;text-align:center;font-size:12px;color:var(--muted)}
+.dayl span.t{color:var(--ink);font-weight:600}
+.goal{position:absolute;left:0;right:0;border-top:1.5px dashed var(--line2);pointer-events:none}
+.goal span{position:absolute;right:0;top:-18px;font-size:11px;color:var(--muted);background:var(--surface);padding-left:4px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-top:10px}
+.legend span{display:inline-flex;gap:5px;align-items:center}
+#lc{width:100%;position:relative}
+#lc svg{display:block;max-width:100%}
+.gl{stroke:var(--line)}.ax{fill:var(--muted);font-size:11px;font-family:var(--f-mono)}.lbl{fill:var(--ink2);font-size:12px}
+.tip{position:fixed;z-index:50;background:var(--ink);color:var(--bg);border-radius:8px;padding:8px 10px;font-size:12.5px;pointer-events:none;max-width:240px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+.tip .tt{font-weight:600;margin-bottom:4px}.tip .tr{display:flex;align-items:center;gap:6px}.tip .tr b{margin-left:auto;font-family:var(--f-mono);padding-left:12px;font-weight:500}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:60;max-width:92vw}
+.days{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.day h3{font-size:13px;margin-bottom:6px;display:flex;justify-content:space-between}
+.ring{display:block;margin:0 auto;max-width:100%}
+.ring circle{fill:none;stroke-width:10}
+.clock{font-family:var(--f-mono);font-size:34px;font-weight:500;letter-spacing:.02em}
+.thumb{width:96px;height:96px;border-radius:8px;border:1px solid var(--line);object-fit:cover;background:repeating-linear-gradient(transparent 0 15px,var(--line) 15px 16px);flex:none}
+.item{display:flex;gap:12px;align-items:flex-start}
+.item>div{min-width:0;flex:1}
+.pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.q{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--surface2)}
+.q label{display:flex;gap:8px;align-items:flex-start;padding:5px 0}
+.q.ok{border-color:var(--good)}.q.no{border-color:var(--red)}
+.unit{display:flex;align-items:center;gap:8px;padding:5px 0;flex-wrap:wrap}
+.steps{display:inline-flex;gap:3px}
+.steps i{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--line2);background:transparent}
+.steps i.on{background:var(--accent);border-color:var(--accent)}
+.tl li{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);align-items:baseline}
+.tl li.past{color:var(--muted)}
+.tl b{font-family:var(--f-mono);font-size:12.5px;min-width:46px}
+.pad{padding:14px}
+body[data-role=guardian] .so{display:none!important}
+body[data-role=student] .go{display:none!important}
+body[data-ai=off] .ai{display:none!important}
+body[data-ai=on] .ainote{display:none!important}
+body[data-img=off] .img{display:none!important}
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:12px;padding-top:12px}
+  .side{display:contents}
+  .nav{flex-direction:row;overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding:8px max(16px,env(safe-area-inset-left,0px));margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));border-bottom:1px solid var(--line);scrollbar-width:none}
+  .nav .grp{display:none}
+  .nav button{white-space:nowrap;flex:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+<div class="shell">
+  <aside class="side">
+    <div class="brand">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="none" style="stroke:var(--red)" stroke-width="3" stroke-linecap="round" stroke-dasharray="86 16" transform="rotate(-30 20 20)"/><path d="M12 21l6 6 11-14" fill="none" style="stroke:var(--accent)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><b>공부길</b><small>중·고등 학습 관리</small></div>
+    </div>
+    <div class="role" id="roleSw" role="group" aria-label="사용자 모드"></div>
+    <nav class="nav" id="nav" aria-label="메뉴"></nav>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<div class="tip" id="tip" hidden role="tooltip"></div>
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseD=s=>{const a=s.split('-').map(Number);return new Date(a[0],a[1]-1,a[2])};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const TODAY=new Date();TODAY.setHours(0,0,0,0);
+const TI=iso(TODAY);
+const DOW=['일','월','화','수','목','금','토'];
+const dDiff=(a,b)=>Math.round((parseD(a)-parseD(b))/864e5);
+const weekStart=d=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+const weekDates=off=>{const b=addDays(weekStart(TODAY),off*7);return [0,1,2,3,4,5,6].map(i=>iso(addDays(b,i)))};
+const fmtMD=s=>{const d=parseD(s);return (d.getMonth()+1)+'.'+d.getDate()+'('+DOW[d.getDay()]+')'};
+const dday=s=>{const n=dDiff(s,TI);return n===0?'D-DAY':n>0?'D-'+n:'D+'+(-n)};
+const fmtMin=m=>{m=Math.round(m);if(m<60)return m+'분';return Math.floor(m/60)+'시간'+(m%60?' '+(m%60)+'분':'')};
+
+const SUBJ=[{n:'국어',c:'var(--s-kor)'},{n:'수학',c:'var(--s-math)'},{n:'영어',c:'var(--s-eng)'},{n:'과학',c:'var(--s-sci)'},{n:'사회',c:'var(--s-soc)'}];
+const subj=n=>SUBJ.find(s=>s.n===n)||SUBJ[0];
+const sw=n=>'<i class="sw" style="--c:'+subj(n).c+'"></i>';
+const subjOpts=sel=>SUBJ.map(s=>'<option'+(s.n===sel?' selected':'')+'>'+s.n+'</option>').join('');
+const WHY=['개념 부족','계산 실수','문제 해석','시간 부족','찍어서 틀림'];
+
+function seed(){
+  const d=n=>iso(addDays(TODAY,n));
+  const SS=[[-6,'수학',70],[-6,'영어',40],[-5,'국어',60],[-5,'과학',50],[-4,'수학',90],[-4,'영어',30],[-4,'사회',40],[-3,'과학',60],[-3,'국어',45],[-2,'수학',80],[-2,'영어',50],[-1,'사회',50],[-1,'국어',40],[-1,'수학',60],[0,'영어',35],[0,'수학',45]];
+  const U=(arr)=>arr.map((t,i)=>({t:t,st:i%4}));
+  return {v:1,role:'student',view:'dashboard',student:{name:'김하늘',grade:'고1'},goalMin:240,
+    timer:{on:false,at:0,acc:0,s:'수학',pomo:false},
+    scores:[
+      {l:'1학기 중간',s:'1중간','국어':78,'수학':64,'영어':82,'과학':70,'사회':75},
+      {l:'1학기 기말',s:'1기말','국어':80,'수학':69,'영어':84,'과학':72,'사회':79},
+      {l:'9월 모의',s:'9월모의','국어':76,'수학':72,'영어':88,'과학':68,'사회':81},
+      {l:'2학기 중간',s:'2중간','국어':83,'수학':74,'영어':86,'과학':77,'사회':80},
+      {l:'주간 모의',s:'주간모의','국어':85,'수학':79,'영어':90,'과학':74,'사회':84}],
+    sessions:SS.map(a=>({id:uid(),d:d(a[0]),s:a[1],m:a[2]})),
+    tasks:[
+      [-4,'수학','이차함수 유형 문제 20개',60,1],[-4,'영어','관계대명사 단어 20개',20,1],[-3,'과학','화학 반응식 개념 정리',40,1],
+      [-2,'수학','오답 3문제 다시 풀기',30,1],[-1,'국어','현대시 정리표 작성',45,1],[-1,'사회','시장 균형 개념 복습',30,0],
+      [0,'수학','닫힌 구간 최대·최소 5문제',40,0],[0,'영어','본문 낭독 + 빈칸 복원',25,1],[0,'과학','오답: 화학 반응식 계산',30,0],
+      [1,'국어','비문학 지문 2개 (타이머)',30,0],[1,'사회','자료 해석 문제 5개',30,0],[2,'수학','주간 모의 대비 오답 총정리',60,0],[2,'영어','문법 서술형 영작',30,0]
+    ].map(a=>({id:uid(),d:d(a[0]),s:a[1],t:a[2],m:a[3],done:!!a[4]})),
+    lessons:[
+      {id:uid(),s:'수학',d:d(-2),tutor:'박 선생님',title:'이차함수 최대·최소',points:['꼭짓점 좌표로 최대·최소를 판별한다','정의역이 제한되면 꼭짓점과 양 끝점의 값을 모두 비교한다','y=a(x−p)²+q 꼴로 바꾸는 순서를 외운다'],hw:[{t:'교재 p.64~67 ①~⑧',done:true},{t:'오답 3문제 다시 풀기',done:false}],q:'꼭짓점이 구간 밖에 있으면 어느 값이 최대·최소가 될까?'},
+      {id:uid(),s:'영어',d:d(-4),tutor:'이 선생님',title:'관계대명사와 관계부사',points:['선행사가 사람이면 who, 사물이면 which','관계부사는 전치사+관계대명사로 바꿔 쓸 수 있다','계속적 용법의 that은 쓸 수 없다'],hw:[{t:'문법 워크북 12~14쪽',done:true}],q:'where과 in which는 어떤 경우에 바꿔 쓸 수 있을까?'},
+      {id:uid(),s:'국어',d:d(-6),tutor:'김 선생님',title:'현대시 화자의 정서 파악',points:['시어의 반복과 어조에서 정서를 찾는다','표현법(은유·의인)은 효과까지 한 문장으로 쓴다'],hw:[{t:'교과서 시 2편 정리표',done:false}],q:''}],
+    wrongs:[
+      {id:uid(),s:'수학',u:'이차함수',d:d(-3),why:'개념 부족',memo:'정의역 제한 조건을 놓쳤다',st:'review',img:null,ai:{core:'닫힌 구간에서 이차함수의 최댓값·최솟값',cause:'꼭짓점이 구간 안에 있는지 확인하지 않고 꼭짓점 값만 답으로 썼어요.',fix:'① 꼭짓점의 x좌표가 구간 안인지 먼저 확인 ② 구간 양 끝점의 함숫값도 계산 ③ 세 값 중 최대·최소 선택',practice:'f(x)=x²−4x+1 (−1≤x≤5)의 최댓값과 최솟값을 구해 보세요.',tip:'구간을 수직선에 그리고 꼭짓점 위치부터 표시하기'}},
+      {id:uid(),s:'수학',u:'확률',d:d(-5),why:'문제 해석',memo:'“적어도 하나”를 여사건으로 풀지 못함',st:'review',img:null,ai:null},
+      {id:uid(),s:'영어',u:'관계대명사',d:d(-4),why:'문제 해석',memo:'선행사를 잘못 골랐다',st:'done',img:null,ai:null},
+      {id:uid(),s:'과학',u:'화학 반응식',d:d(-2),why:'계산 실수',memo:'계수 맞추기에서 산소 개수를 틀림',st:'review',img:null,ai:null},
+      {id:uid(),s:'국어',u:'비문학 추론',d:d(-6),why:'시간 부족',memo:'마지막 지문을 못 읽음',st:'review',img:null,ai:null},
+      {id:uid(),s:'사회',u:'시장 균형',d:d(-1),why:'개념 부족',memo:'수요 변화와 수요량 변화 혼동',st:'done',img:null,ai:null}],
+    exams:[
+      {id:uid(),name:'2학기 기말고사',d:d(46),subs:[
+        {s:'국어',range:'현대시, 고전 소설, 음운 변동',units:U(['현대시','고전 소설','음운 변동'])},
+        {s:'수학',range:'이차함수, 확률, 경우의 수',units:U(['이차함수','경우의 수','확률'])},
+        {s:'영어',range:'7~9과 본문, 관계사',units:U(['7과 본문','8과 본문','관계사'])},
+        {s:'과학',range:'화학 반응, 역학적 에너지',units:U(['화학 반응','역학적 에너지'])},
+        {s:'사회',range:'시장 경제, 민주 정치',units:U(['시장 경제','민주 정치'])}]},
+      {id:uid(),name:'수학 단원평가',d:d(7),subs:[{s:'수학',range:'이차함수',units:U(['이차함수 그래프','최대·최소'])}]}],
+    mockHist:[{id:uid(),d:d(-7),s:'수학',sc:3,n:5,u:'이차함수'},{id:uid(),d:d(-6),s:'영어',sc:4,n:5,u:'관계사'},{id:uid(),d:d(-3),s:'국어',sc:4,n:5,u:'문법'}],
+    perf:[
+      {id:uid(),s:'과학',title:'실험 보고서: 산·염기 중화',type:'보고서',due:d(5),pts:20,steps:[{t:'주제 선정',by:d(-3),done:true},{t:'실험 결과 정리',by:d(1),done:true},{t:'초안 작성',by:d(3),done:false},{t:'그래프·표 점검',by:d(4),done:false},{t:'제출',by:d(5),done:false}]},
+      {id:uid(),s:'국어',title:'시 감상문 쓰기',type:'서술형',due:d(9),pts:20,steps:[{t:'작품 선정',by:d(1),done:true},{t:'감상 포인트 3가지 메모',by:d(3),done:false},{t:'초안 작성',by:d(6),done:false},{t:'분량·맞춤법 점검',by:d(8),done:false},{t:'제출',by:d(9),done:false}]},
+      {id:uid(),s:'영어',title:'영어 발표: 환경 이슈',type:'발표',due:d(14),pts:30,steps:[{t:'주제·목표 정하기',by:d(2),done:false},{t:'자료 조사',by:d(5),done:false},{t:'발표 대본 작성',by:d(8),done:false},{t:'슬라이드 제작',by:d(10),done:false},{t:'리허설(시간 재기)',by:d(13),done:false}]}],
+    comments:[
+      {id:uid(),who:'박 선생님',d:d(-1),t:'이차함수 오답이 줄고 있어요. 이번 주는 닫힌 구간 문제 5개만 더 풀어 봐요.'},
+      {id:uid(),who:'학부모',d:d(-2),t:'이번 주 공부 시간이 꾸준해서 보기 좋아요. 주말에는 충분히 쉬어요.'}],
+    memo:[]
+  };
+}
+let S;
+function load(){try{const r=localStorage.getItem('gongbugil.v1');if(r){const o=JSON.parse(r);if(o&&o.v===1)return o}}catch(e){}return seed()}
+function save(){try{localStorage.setItem('gongbugil.v1',JSON.stringify(S))}catch(e){try{const c=JSON.parse(JSON.stringify(S));c.wrongs.forEach(w=>{w.img=null});localStorage.setItem('gongbugil.v1',JSON.stringify(c))}catch(_){}}}
+const UI={weekOff:0,vis:new Set(SUBJ.map(s=>s.n)),wf:'전체',busy:{},pend:{wf:null,wt:null,mf:[],mt:[]},mock:null,st:'수학',diag:{},memoRes:null};
+
+/* tooltip + toast */
+let TIPS=[];
+const tipEl=$('#tip');
+const tipAttr=h=>{TIPS.push(h);return 'data-tip="'+(TIPS.length-1)+'" tabindex="0"'};
+function placeTip(e){const w=tipEl.offsetWidth,h=tipEl.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-14;tipEl.style.left=Math.max(8,x)+'px';tipEl.style.top=Math.max(8,y)+'px'}
+function showTip(h,e){tipEl.innerHTML=h;tipEl.hidden=false;placeTip(e)}
+function hideTip(){tipEl.hidden=true}
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},3200)}
+
+/* AI helpers */
+let SAMPLE=null,IMG_OK=false;
+async function initAI(){
+  try{ if(window.claude&&window.claude.use){SAMPLE=await window.claude.use('sample'); if(SAMPLE){try{const l=await SAMPLE.limits();IMG_OK=!!(l&&l.images)}catch(e){}}} }catch(e){SAMPLE=null}
+  document.body.dataset.ai=SAMPLE?'on':'off';document.body.dataset.img=(SAMPLE&&IMG_OK)?'on':'off';
+}
+const AIERR={not_granted:'Claude 사용이 허용되지 않았어요. 허용한 뒤 다시 눌러 주세요.',rate_limited:'요청이 많아요. 잠시 뒤에 다시 시도해 주세요.',image_rejected:'사진을 읽을 수 없어요. 다른 사진으로 시도해 주세요.',invalid_json:'결과를 읽지 못했어요. 한 번 더 눌러 주세요.',session_expired:'다시 로그인해 주세요.'};
+const aiMsg=e=>AIERR[e&&e.code]||'분석에 실패했어요. 잠시 뒤 다시 시도해 주세요.';
+async function askJson(prompt,files){const o={};if(files&&files.length&&IMG_OK)o.images=files;return SAMPLE.json(prompt,o)}
+async function askText(prompt){const r=await SAMPLE(prompt,{});return r.text}
+const COACH='너는 한국 중·고등학생을 돕는 친절한 학습 코치야. 한국어로, 학생이 바로 실행할 수 있게 구체적으로 답해.';
+function thumb(file,max){return new Promise(res=>{const u=URL.createObjectURL(file);const im=new Image();im.onload=()=>{const k=Math.min(1,(max||800)/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.7))};im.onerror=()=>{URL.revokeObjectURL(u);res(null)};im.src=u})}
+async function dataBlob(u){const r=await fetch(u);return r.blob()}
+async function run(key,fn){UI.busy[key]=true;render();try{await fn()}catch(e){toast(aiMsg(e))}UI.busy[key]=false;render()}
+const busyTxt=(k,a,b)=>UI.busy[k]?(b||'분석 중…'):a;
+const dis=k=>UI.busy[k]?' disabled':'';
+
+/* shared calcs */
+const minsIn=(dates,s)=>S.sessions.filter(x=>dates.indexOf(x.d)>=0&&(!s||x.s===s)).reduce((a,b)=>a+b.m,0);
+const upcoming=()=>S.exams.filter(e=>dDiff(e.d,TI)>=0).sort((a,b)=>a.d<b.d?-1:1);
+const todayMin=()=>S.sessions.filter(x=>x.d===TI).reduce((a,b)=>a+b.m,0);
+const pending=()=>S.wrongs.filter(w=>w.st==='review');
+function delta(n,u){const v=Math.round(n*10)/10;if(v===0)return '<span class="dl eq">– 변화 없음</span>';return '<span class="dl '+(v>0?'up':'dn')+'">'+(v>0?'▲ ':'▼ ')+Math.abs(v)+(u||'')+'</span>'}
+function streak(){const days=new Set(S.sessions.map(x=>x.d));let n=0,d=TODAY;if(!days.has(iso(d)))d=addDays(d,-1);while(days.has(iso(d))){n++;d=addDays(d,-1)}return n}
+
+/* nav */
+const NAV=[['홈',[['dashboard','대시보드']]],['계획',[['plan','학습 계획'],['timer','혼공 타이머']]],['정리',[['lessons','수업 노트'],['wrong','오답노트']]],['시험',[['memo','시험 범위·암기'],['mock','주간 모의 테스트'],['exam','시험 대비'],['perf','수행평가']]],['전략',[['strategy','과목별 전략']]]];
+function badge(id){
+  if(id==='plan'){const n=S.tasks.filter(t=>t.d===TI&&!t.done).length;return n?'<span class="bd">오늘 '+n+'</span>':''}
+  if(id==='timer'){return '<span class="bd">'+fmtMin(todayMin())+'</span>'}
+  if(id==='lessons'){const n=S.lessons.reduce((a,l)=>a+l.hw.filter(h=>!h.done).length,0);return n?'<span class="bd">숙제 '+n+'</span>':''}
+  if(id==='wrong'){const n=pending().length;return n?'<span class="bd red">복습 '+n+'</span>':''}
+  if(id==='exam'){const u=upcoming()[0];return u?'<span class="bd">'+dday(u.d)+'</span>':''}
+  if(id==='perf'){const u=S.perf.filter(p=>dDiff(p.due,TI)>=0).sort((a,b)=>a.due<b.due?-1:1)[0];return u?'<span class="bd">'+dday(u.due)+'</span>':''}
+  if(id==='mock'){const wk=weekDates(0);const n=new Set(S.mockHist.filter(m=>wk.indexOf(m.d)>=0).map(m=>m.s)).size;return '<span class="bd">'+n+'/5</span>'}
+  return '';
+}
+function navHTML(){return NAV.map(g=>'<div class="grp">'+g[0]+'</div>'+g[1].map(i=>'<button data-a="go" data-v="'+i[0]+'"'+(S.view===i[0]?' aria-current="page"':'')+'><span class="lb">'+i[1]+'</span>'+badge(i[0])+'</button>').join('')).join('')}
+const roleHTML=()=>'<button data-a="role" data-v="student" aria-pressed="'+(S.role==='student')+'">학생</button><button data-a="role" data-v="guardian" aria-pressed="'+(S.role==='guardian')+'">학부모·선생님</button>';
+const pageHead=(t,p)=>'<header class="ph"><h1><span>'+t+'</span></h1>'+(p?'<p>'+p+'</p>':'')+'</header>';
+const aiNote='<p class="sm muted ainote">AI 분석은 Claude에 연결된 화면에서 켜져요. 지금은 직접 입력과 기본 도구로 사용할 수 있어요.</p>';
+
+/* dashboard */
+function vDashboard(){
+  const nx=upcoming()[0],wk=weekDates(0),lw=weekDates(-1),idx=(TODAY.getDay()+6)%7;
+  const mWk=minsIn(wk),mLast=minsIn(lw.slice(0,idx+1));
+  const wt=S.tasks.filter(t=>wk.indexOf(t.d)>=0),wd=wt.filter(t=>t.done).length,rate=wt.length?Math.round(wd/wt.length*100):0;
+  const L=S.scores[S.scores.length-1],P=S.scores[S.scores.length-2]||L;
+  const avg=o=>SUBJ.reduce((a,s)=>a+o[s.n],0)/SUBJ.length;
+  const weak=SUBJ.slice().sort((a,b)=>L[a.n]-L[b.n])[0];
+  const td=S.tasks.filter(t=>t.d===TI);
+  const dn=TODAY;const nm=S.student.name;
+  let h=pageHead(nm+'님, '+(nx?nx.name+' '+dday(nx.d):'오늘도 한 걸음'),(dn.getMonth()+1)+'월 '+dn.getDate()+'일 '+DOW[dn.getDay()]+'요일 · '+S.student.grade+' · 오늘 계획 '+td.length+'개 중 '+td.filter(t=>t.done).length+'개 완료');
+  if(S.role==='guardian')h+='<div class="banner">열람 모드입니다. '+esc(nm)+' 학생의 학습 현황을 보고, 코멘트와 수업 노트를 남길 수 있어요.</div>';
+  h+='<section class="kpis">'
+   +'<div class="card kpi"><div class="l">이번 주 공부 시간</div><div class="v">'+fmtMin(mWk)+'</div>'+delta((mWk-mLast)/60,'시간')+' <span class="sm muted">지난주 같은 요일 대비</span></div>'
+   +'<div class="card kpi"><div class="l">이번 주 계획 달성률</div><div class="v">'+rate+'<small>%</small></div><div class="bar"><i style="width:'+rate+'%"></i></div><div class="sm muted" style="margin-top:4px">'+wd+' / '+wt.length+'개 완료</div></div>'
+   +'<div class="card kpi"><div class="l">복습 대기 오답</div><div class="v">'+pending().length+'<small>개</small></div><button class="btn s ghost" data-a="go" data-v="wrong">오답노트 열기</button></div>'
+   +'<div class="card kpi"><div class="l">최근 평균 점수</div><div class="v">'+(Math.round(avg(L)*10)/10)+'<small>점</small></div>'+delta(avg(L)-avg(P),'점')+'</div></section>';
+  /* charts */
+  const bars=weekBars();
+  h+='<section class="g2"><div class="card"><h2>이번 주 공부 시간<span class="sm muted">목표 하루 '+fmtMin(S.goalMin)+'</span></h2>'+bars+'</div>'
+   +'<div class="card"><h2>점수 추이</h2><div class="chips" style="margin-bottom:8px">'+SUBJ.map(s=>'<button class="chip" data-a="vis" data-v="'+s.n+'" aria-pressed="'+UI.vis.has(s.n)+'">'+sw(s.n)+s.n+'</button>').join('')+'</div><div id="lc"></div></div></section>';
+  /* subject status */
+  h+='<section class="card"><h2>과목별 학습 현황<span class="sm muted">가장 신경 쓸 과목: <b>'+weak.n+'</b> ('+L[weak.n]+'점)</span></h2><div class="scroll"><table class="tb"><thead><tr><th>과목</th><th>최근 점수</th><th>변화</th><th>이번 주 공부</th><th>복습 대기 오답</th><th>계획 달성</th></tr></thead><tbody>'
+   +SUBJ.map(s=>{const ts=wt.filter(t=>t.s===s.n),dd=ts.filter(t=>t.done).length,r=ts.length?Math.round(dd/ts.length*100):0,pw=pending().filter(w=>w.s===s.n).length;
+     return '<tr><td>'+sw(s.n)+' <b>'+s.n+'</b></td><td class="mono">'+L[s.n]+'</td><td>'+delta(L[s.n]-P[s.n],'점')+'</td><td class="mono">'+fmtMin(minsIn(wk,s.n))+'</td><td>'+(pw?'<span class="bd red">'+pw+'개</span>':'<span class="sm muted">없음</span>')+'</td><td style="min-width:120px"><div class="bar" style="--c:'+s.c+'"><i style="width:'+r+'%"></i></div><span class="sm muted mono">'+dd+'/'+ts.length+'</span></td></tr>'}).join('')+'</tbody></table></div></section>';
+  /* today + comments */
+  h+='<section class="g2"><div class="card"><h2>오늘 할 일</h2>'+(td.length?td.map(t=>taskRow(t)).join(''):'<p class="muted">오늘 계획이 없어요. 학습 계획에서 추가해 보세요.</p>')+'</div>'
+   +'<div class="card"><h2>선생님·학부모 코멘트</h2>'+(S.comments.length?S.comments.slice().reverse().map(c=>'<div class="todo"><div class="tt"><b>'+esc(c.who)+'</b> <span class="sm muted mono">'+fmtMD(c.d)+'</span><div>'+esc(c.t)+'</div></div></div>').join(''):'<p class="muted">아직 코멘트가 없어요.</p>')
+   +'<div class="go stack" style="margin-top:12px"><div class="row"><label class="lab" style="flex:0 0 130px">작성자<select class="in" id="cm-who"><option>학부모</option><option>박 선생님</option><option>이 선생님</option></select></label></div><textarea class="in" id="cm-t" placeholder="학생에게 응원이나 피드백을 남겨 보세요"></textarea><div><button class="btn" data-a="comment">코멘트 남기기</button></div></div></div></section>';
+  return h;
+}
+function taskRow(t){return '<div class="todo'+(t.done?' done':'')+'"><input type="checkbox" data-a="tk" data-id="'+t.id+'" '+(t.done?'checked ':'')+(S.role==='guardian'?'disabled ':'')+'aria-label="완료"><div class="tt">'+sw(t.s)+' '+esc(t.t)+' <span class="sm muted mono">'+t.m+'분</span></div>'+(S.role==='student'?'<button class="x" data-a="tkdel" data-id="'+t.id+'" aria-label="삭제">×</button>':'')+'</div>'}
+
+function weekBars(){
+  const days=weekDates(0);
+  const tot=days.map(d=>{const per={};SUBJ.forEach(s=>{per[s.n]=0});S.sessions.filter(x=>x.d===d).forEach(x=>{per[x.s]+=x.m});return {d:d,per:per,sum:Object.keys(per).reduce((a,k)=>a+per[k],0)}});
+  const mx=Math.max(...tot.map(x=>x.sum)),max=Math.max(S.goalMin,mx)*1.15;
+  let h='<div class="cols" role="img" aria-label="요일별 공부 시간 막대 그래프"><div class="goal" style="bottom:'+(S.goalMin/max*100)+'%"><span>목표</span></div>';
+  tot.forEach(t=>{
+    const tip=tipAttr('<div class="tt">'+fmtMD(t.d)+' · '+fmtMin(t.sum)+'</div>'+SUBJ.filter(s=>t.per[s.n]).map(s=>'<div class="tr"><i class="sw" style="--c:'+s.c+'"></i>'+s.n+'<b>'+fmtMin(t.per[s.n])+'</b></div>').join(''));
+    const p=t.sum/max*100;
+    h+='<div class="col" '+tip+'>'+(t.sum&&(t.d===TI||t.sum===mx)?'<div class="tot" style="bottom:calc('+p+'% + 3px)">'+fmtMin(t.sum)+'</div>':'')+'<div class="stackbar" style="height:'+p+'%">'+SUBJ.filter(s=>t.per[s.n]).map(s=>'<div class="seg" style="--c:'+s.c+';flex:'+t.per[s.n]+' 1 0"></div>').join('')+'</div></div>';
+  });
+  h+='</div><div class="dayl">'+days.map(d=>'<span class="'+(d===TI?'t':'')+'">'+DOW[parseD(d).getDay()]+'</span>').join('')+'</div>';
+  h+='<div class="legend">'+SUBJ.map(s=>'<span>'+sw(s.n)+s.n+'</span>').join('')+'</div>';
+  return h;
+}
+
+function drawLine(){
+  const el=$('#lc');if(!el)return;
+  const W=Math.max(280,el.clientWidth),H=250,m={l:30,r:58,t:12,b:30},rows=S.scores,vis=SUBJ.filter(s=>UI.vis.has(s.n));
+  if(!vis.length){el.innerHTML='<p class="muted pad">표시할 과목을 선택해 주세요.</p>';return}
+  const vals=[];vis.forEach(s=>rows.forEach(r=>vals.push(r[s.n])));
+  let hi=Math.min(100,Math.ceil((Math.max(...vals)+3)/10)*10),lo=Math.floor((Math.min(...vals)-5)/10)*10;if(hi-lo<20)lo=hi-20;
+  const n=rows.length,x=i=>m.l+(n===1?0:i*(W-m.l-m.r)/(n-1)),y=v=>m.t+(hi-v)*(H-m.t-m.b)/(hi-lo);
+  let g='';
+  for(let v=lo;v<=hi;v+=10)g+='<line class="gl" x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+y(v)+'" y2="'+y(v)+'"/><text class="ax" x="'+(m.l-6)+'" y="'+(y(v)+4)+'" text-anchor="end">'+v+'</text>';
+  rows.forEach((r,i)=>{g+='<text class="ax" x="'+x(i)+'" y="'+(H-9)+'" text-anchor="middle">'+esc(r.s)+'</text>'});
+  vis.forEach(s=>{const pts=rows.map((r,i)=>x(i)+','+y(r[s.n]));g+='<polyline points="'+pts.join(' ')+'" fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" style="stroke:'+s.c+'"/>';rows.forEach((r,i)=>{g+='<circle cx="'+x(i)+'" cy="'+y(r[s.n])+'" r="4" stroke-width="2" style="fill:'+s.c+';stroke:var(--surface)"/>'})});
+  const ends=vis.map(s=>({s:s,y:y(rows[n-1][s.n])})).sort((a,b)=>a.y-b.y);
+  for(let i=1;i<ends.length;i++)if(ends[i].y-ends[i-1].y<14)ends[i].y=ends[i-1].y+14;
+  ends.forEach(e=>{g+='<rect x="'+(W-m.r+10)+'" y="'+(e.y-4)+'" width="8" height="8" rx="2" style="fill:'+e.s.c+'"/><text class="lbl" x="'+(W-m.r+22)+'" y="'+(e.y+4)+'">'+e.s.n+'</text>'});
+  g+='<line id="lcx" y1="'+m.t+'" y2="'+(H-m.b)+'" stroke-dasharray="3 3" visibility="hidden" style="stroke:var(--line2)"/><rect id="lcov" x="'+(m.l-10)+'" y="0" width="'+(W-m.l-m.r+20)+'" height="'+(H-m.b)+'" fill="transparent"/>';
+  el.innerHTML='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="과목별 점수 추이 꺾은선 그래프">'+g+'</svg>';
+  const ov=$('#lcov',el),cx=$('#lcx',el);
+  const mv=e=>{const r=el.getBoundingClientRect();let i=Math.round((e.clientX-r.left-m.l)/(((W-m.l-m.r)/(n-1))||1));i=Math.max(0,Math.min(n-1,i));cx.setAttribute('x1',x(i));cx.setAttribute('x2',x(i));cx.setAttribute('visibility','visible');
+    showTip('<div class="tt">'+esc(rows[i].l)+'</div>'+vis.slice().sort((a,b)=>rows[i][b.n]-rows[i][a.n]).map(s=>'<div class="tr"><i class="sw" style="--c:'+s.c+'"></i>'+s.n+'<b>'+rows[i][s.n]+'</b></div>').join(''),e)};
+  ov.addEventListener('pointermove',mv);ov.addEventListener('pointerdown',mv);ov.addEventListener('pointerleave',()=>{cx.setAttribute('visibility','hidden');hideTip()});
+}
+
+/* plan */
+function vPlan(){
+  const days=weekDates(UI.weekOff),wt=S.tasks.filter(t=>days.indexOf(t.d)>=0),dn=wt.filter(t=>t.done),mins=wt.reduce((a,t)=>a+t.m,0),dm=dn.reduce((a,t)=>a+t.m,0);
+  let h=pageHead('학습 계획','주간 계획을 세우고, 끝낸 일을 체크하세요. 시험 날짜와 약한 과목을 반영한 자동 계획도 만들 수 있어요.');
+  h+='<div class="card"><div class="row" style="justify-content:space-between;align-items:center"><div class="row" style="align-items:center"><button class="btn quiet s" data-a="week" data-n="-1" aria-label="이전 주">‹</button><b>'+fmtMD(days[0])+' – '+fmtMD(days[6])+'</b><button class="btn quiet s" data-a="week" data-n="1" aria-label="다음 주">›</button><button class="btn quiet s" data-a="week" data-n="0">이번 주</button></div>'
+   +'<span class="sm muted">완료 '+dn.length+'/'+wt.length+'개 · '+fmtMin(dm)+' / '+fmtMin(mins)+'</span></div><div class="bar" style="margin-top:10px"><i style="width:'+(wt.length?Math.round(dn.length/wt.length*100):0)+'%"></i></div></div>';
+  h+='<div class="days">'+days.map(d=>{const ts=S.tasks.filter(t=>t.d===d);return '<div class="day'+(d===TI?' today':'')+'"><h3><span>'+fmtMD(d)+'</span>'+(d===TI?'<span class="bd">오늘</span>':'')+'</h3>'+(ts.length?ts.map(taskRow).join(''):'<p class="sm muted">비어 있어요</p>')+'</div>'}).join('')+'</div>';
+  h+='<div class="card so"><h2>할 일 추가</h2><div class="row"><label class="lab" style="flex:0 0 110px">과목<select class="in" id="tk-s">'+subjOpts()+'</select></label><label class="lab" style="flex:2 1 220px">할 일<input class="in" id="tk-t" placeholder="예: 이차함수 유형 문제 20개"></label>'
+   +'<label class="lab" style="flex:0 0 90px">시간<select class="in" id="tk-m">'+[15,20,30,45,60,90].map(m=>'<option value="'+m+'"'+(m===30?' selected':'')+'>'+m+'분</option>').join('')+'</select></label>'
+   +'<label class="lab" style="flex:0 0 130px">날짜<select class="in" id="tk-d">'+days.map(d=>'<option value="'+d+'"'+(d===TI?' selected':'')+'>'+fmtMD(d)+'</option>').join('')+'</select></label><button class="btn" data-a="tkadd">추가</button></div>'
+   +'<div class="row" style="margin-top:12px"><button class="btn ghost" data-a="autoplan"'+dis('plan')+'>'+busyTxt('plan','시험 일정으로 자동 계획 만들기','계획 만드는 중…')+'</button></div><p class="sm muted" style="margin-top:6px">낮은 점수와 복습 대기 오답이 많은 과목을 먼저 배치하고, 오늘 이후 날짜에 채워 넣어요.</p></div>';
+  return h;
+}
+
+/* timer */
+function vTimer(){
+  const t=S.timer,sg=streak();
+  const days=weekDates(0);
+  let h=pageHead('혼공 타이머','과목을 고르고 시작하면 공부 시간이 자동으로 기록돼요. 오늘 목표까지 얼마나 남았는지 한눈에 볼 수 있어요.');
+  h+='<div class="g2"><div class="card" style="text-align:center"><div class="chips so" style="justify-content:center;margin-bottom:10px">'+SUBJ.map(s=>'<button class="chip" data-a="tmsub" data-v="'+s.n+'" aria-pressed="'+(t.s===s.n)+'"'+(t.on?' disabled':'')+'>'+sw(s.n)+s.n+'</button>').join('')+'</div>'
+   +'<div class="go sm muted" style="margin-bottom:8px">학생이 공부 중이면 여기에 기록돼요</div>'
+   +'<div style="position:relative;width:220px;max-width:100%;margin:0 auto"><svg class="ring" viewBox="0 0 200 200" width="220" height="220" role="img" aria-label="오늘 목표 진행률"><circle cx="100" cy="100" r="86" style="stroke:var(--surface2)"/><circle id="ring" cx="100" cy="100" r="86" transform="rotate(-90 100 100)" stroke-linecap="round" style="stroke:'+subj(t.s).c+';transition:stroke-dashoffset .4s"/></svg>'
+   +'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="clock" id="clock">00:00:00</div><div class="sm muted" id="phase"></div></div></div>'
+   +'<p style="margin-top:8px">오늘 <b id="tTotal">0분</b> / 목표 <b>'+fmtMin(S.goalMin)+'</b></p>'
+   +'<div class="row so" style="justify-content:center;margin-top:10px"><button class="btn" data-a="tmtoggle">'+(t.on?'일시정지':(t.acc?'이어서 공부':'공부 시작'))+'</button><button class="btn quiet" data-a="tmsave">종료하고 기록</button><button class="btn quiet" data-a="tmreset">초기화</button></div>'
+   +'<label class="so sm muted" style="display:inline-flex;gap:8px;margin-top:12px;align-items:center"><input type="checkbox" data-a="pomo" '+(t.pomo?'checked':'')+'> 25분 집중 · 5분 휴식 표시</label></div>'
+   +'<div class="stack"><div class="card"><h2>오늘의 기록<span class="bd">연속 '+sg+'일</span></h2>'+(S.sessions.filter(x=>x.d===TI).length?S.sessions.filter(x=>x.d===TI).map(x=>'<div class="todo"><div class="tt">'+sw(x.s)+' '+x.s+' <span class="mono sm muted">'+fmtMin(x.m)+'</span></div>'+(S.role==='student'?'<button class="x" data-a="ssdel" data-id="'+x.id+'" aria-label="삭제">×</button>':'')+'</div>').join(''):'<p class="muted">아직 기록이 없어요. 타이머를 시작해 보세요.</p>')+'</div>'
+   +'<div class="card so"><h2>직접 기록하기</h2><div class="row"><label class="lab" style="flex:0 0 100px">과목<select class="in" id="ms-s">'+subjOpts(t.s)+'</select></label><label class="lab" style="flex:0 0 100px">분<input class="in" id="ms-m" type="number" min="1" max="600" value="30"></label><button class="btn" data-a="msadd">추가</button></div>'
+   +'<div class="row" style="margin-top:12px"><label class="lab" style="flex:0 0 160px">하루 목표<select class="in" id="goal" data-a="goal">'+[120,180,240,300,360,480].map(m=>'<option value="'+m+'"'+(m===S.goalMin?' selected':'')+'>'+fmtMin(m)+'</option>').join('')+'</select></label></div></div></div></div>';
+  h+='<div class="card"><h2>이번 주 과목별 공부 시간</h2><div class="stack">'+SUBJ.map(s=>{const m=minsIn(days,s.n),mx=Math.max(1,...SUBJ.map(z=>minsIn(days,z.n)));return '<div style="display:grid;grid-template-columns:64px 1fr 80px;gap:10px;align-items:center"><span>'+sw(s.n)+' '+s.n+'</span><div class="bar" style="--c:'+s.c+'"><i style="width:'+(m/mx*100)+'%"></i></div><span class="mono sm" style="text-align:right">'+fmtMin(m)+'</span></div>'}).join('')+'</div></div>';
+  return h;
+}
+function tickTimer(){
+  const c=$('#clock');if(!c)return;const t=S.timer,el=t.acc+(t.on?Date.now()-t.at:0),s=Math.floor(el/1000);
+  c.textContent=pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60);
+  const tot=todayMin()+el/60000,p=Math.min(1,tot/S.goalMin),C=2*Math.PI*86,r=$('#ring');
+  if(r){r.style.strokeDasharray=C;r.style.strokeDashoffset=C*(1-p)}
+  $('#tTotal').textContent=fmtMin(Math.floor(tot));
+  const ph=$('#phase');if(ph){if(t.pomo){const pos=s%1800,f=pos<1500,rem=f?1500-pos:1800-pos;ph.textContent=(f?'집중 ':'휴식 ')+pad(Math.floor(rem/60))+':'+pad(rem%60)+' 남음'}else ph.textContent=t.on?subj(t.s).n+' 공부 중':(t.acc?'일시정지':'')}
+}
+
+/* lessons */
+function vLessons(){
+  let h=pageHead('수업 노트','과외·학원 수업 내용을 핵심 정리, 숙제, 다음 수업 질문으로 정리해 두세요. 선생님도 직접 기록할 수 있어요.');
+  h+='<div class="card"><h2>수업 기록하기</h2><div class="stack"><div class="row"><label class="lab" style="flex:0 0 100px">과목<select class="in" id="ls-s">'+subjOpts()+'</select></label><label class="lab" style="flex:1 1 150px">선생님<input class="in" id="ls-tu" placeholder="예: 박 선생님"></label><label class="lab" style="flex:2 1 200px">수업 주제<input class="in" id="ls-ti" placeholder="예: 이차함수 최대·최소"></label></div>'
+   +'<label class="lab">수업 메모 (그대로 붙여 넣어도 돼요. 숙제·과제가 들어간 줄은 숙제로 분류돼요)<textarea class="in" id="ls-n" placeholder="- 꼭짓점으로 최대·최소 판단&#10;- 정의역 제한 시 양 끝점 비교&#10;- 숙제: 교재 64~67쪽"></textarea></label>'
+   +'<div class="row"><button class="btn" data-a="lsadd">저장</button><button class="btn ghost ai" data-a="lsai"'+dis('ls')+'>'+busyTxt('ls','AI로 정리해서 저장','정리 중…')+'</button></div></div></div>';
+  h+=S.lessons.slice().sort((a,b)=>a.d<b.d?1:-1).map(l=>'<article class="card"><h2><span>'+sw(l.s)+' '+esc(l.title)+'</span><span class="sm muted mono">'+fmtMD(l.d)+' · '+esc(l.tutor||'')+'</span></h2>'
+   +'<div class="grid"><div><b class="sm">핵심 정리</b><ul class="stack" style="margin-top:6px;gap:6px">'+l.points.map(p=>'<li>• '+esc(p)+'</li>').join('')+'</ul></div>'
+   +'<div><b class="sm">숙제</b>'+(l.hw.length?l.hw.map((x,i)=>'<div class="todo'+(x.done?' done':'')+'"><input type="checkbox" data-a="hw" data-id="'+l.id+'" data-i="'+i+'" '+(x.done?'checked':'')+(S.role==='guardian'?' disabled':'')+' aria-label="숙제 완료"><div class="tt">'+esc(x.t)+'</div></div>').join(''):'<p class="sm muted">숙제 없음</p>')+'</div>'
+   +'<div><b class="sm">다음 수업 때 물어볼 것</b><p style="margin-top:6px">'+(l.q?esc(l.q):'<span class="muted">없음</span>')+'</p></div></div><div style="margin-top:8px"><button class="btn quiet s" data-a="lsdel" data-id="'+l.id+'">삭제</button></div></article>').join('');
+  return h;
+}
+
+/* wrong notes */
+function aiCard(a){return '<div class="q" style="margin-top:8px"><b class="sm">AI 분석</b><p class="sm" style="margin-top:4px"><b>핵심 개념</b> '+esc(a.core)+'</p><p class="sm"><b>틀린 이유</b> '+esc(a.cause)+'</p><p class="sm pre"><b>바로잡기</b> '+esc(a.fix)+'</p><p class="sm"><b>연습 문제</b> '+esc(a.practice)+'</p><p class="sm"><b>다음엔</b> '+esc(a.tip)+'</p></div>'}
+function vWrong(){
+  const all=S.wrongs,list=all.filter(w=>UI.wf==='전체'||w.s===UI.wf).sort((a,b)=>a.d<b.d?1:-1);
+  const byWhy=WHY.map(w=>({w:w,n:all.filter(x=>x.why===w).length})),mx=Math.max(1,...byWhy.map(x=>x.n));
+  let h=pageHead('오답노트','틀린 문제를 사진으로 올리면 틀린 이유와 바로잡는 방법을 정리해 줘요. 복습이 끝나면 완료 도장을 찍어요.');
+  h+='<div class="g2"><div class="card so"><h2>오답 올리기</h2><div class="stack"><div class="row"><label class="lab" style="flex:0 0 100px">과목<select class="in" id="wr-s">'+subjOpts()+'</select></label><label class="lab">단원<input class="in" id="wr-u" placeholder="예: 이차함수"></label><label class="lab" style="flex:0 0 130px">틀린 이유<select class="in" id="wr-w">'+WHY.map(w=>'<option>'+w+'</option>').join('')+'</select></label></div>'
+   +'<label class="lab">문제 사진<input class="in" id="wr-f" type="file" accept="image/*"></label>'+(UI.pend.wt?'<img class="thumb" style="width:140px;height:140px" src="'+UI.pend.wt+'" alt="선택한 오답 사진 미리보기">':'')
+   +'<label class="lab">메모 (어디서 막혔는지)<textarea class="in" id="wr-m" placeholder="예: 정의역 제한 조건을 놓쳤다"></textarea></label>'
+   +'<div class="row"><button class="btn" data-a="wradd">저장</button><button class="btn ghost ai img" data-a="wradd" data-ai="1"'+dis('wr')+'>'+busyTxt('wr','저장하고 AI 분석','분석 중…')+'</button></div>'+aiNote+'</div></div>'
+   +'<div class="card"><h2>틀린 이유별 분포<span class="sm muted">전체 '+all.length+'개</span></h2><div class="stack">'+byWhy.map(x=>'<div style="display:grid;grid-template-columns:84px 1fr 28px;gap:10px;align-items:center"><span class="sm">'+x.w+'</span><div class="bar"><i style="width:'+(x.n/mx*100)+'%;--c:var(--red)"></i></div><span class="mono sm" style="text-align:right">'+x.n+'</span></div>').join('')+'</div></div></div>';
+  h+='<div class="chips">'+['전체'].concat(SUBJ.map(s=>s.n)).map(n=>'<button class="chip" data-a="wf" data-v="'+n+'" aria-pressed="'+(UI.wf===n)+'">'+(n==='전체'?'':sw(n))+n+'</button>').join('')+'</div>';
+  h+=list.length?list.map(w=>'<article class="card"><div class="item">'+(w.img?'<img class="thumb" src="'+w.img+'" alt="오답 문제 사진">':'<div class="thumb" role="img" aria-label="사진 없음"></div>')
+    +'<div><div class="row" style="justify-content:space-between;align-items:center"><b>'+sw(w.s)+' '+w.s+(w.u?' · '+esc(w.u):'')+'</b>'+(w.st==='review'?'<span class="stamp">복습</span>':'<span class="stamp ok">완료 ✓</span>')+'</div>'
+    +'<p class="sm muted mono">'+fmtMD(w.d)+' · '+esc(w.why)+'</p>'+(w.memo?'<p class="sm">'+esc(w.memo)+'</p>':'')+(w.ai?aiCard(w.ai):'')
+    +'<div class="row" style="margin-top:8px"><button class="btn quiet s so" data-a="wrst" data-id="'+w.id+'">'+(w.st==='review'?'복습 완료로 표시':'다시 복습')+'</button>'
+    +(w.ai?'':'<button class="btn ghost s ai img so" data-a="wrai" data-id="'+w.id+'"'+dis('wr'+w.id)+'>'+busyTxt('wr'+w.id,'AI 분석','분석 중…')+'</button>')+'<button class="btn quiet s so" data-a="wrdel" data-id="'+w.id+'">삭제</button></div></div></div></article>').join(''):'<p class="muted">해당 과목의 오답이 없어요.</p>';
+  return h;
+}
+
+/* memo (exam range + memorization) */
+function ebb(){return [['오늘 처음 학습',0],['1일 뒤 복습',1],['3일 뒤 복습',3],['7일 뒤 복습',7],['14일 뒤 최종 복습',14]].map(a=>[a[0],iso(addDays(TODAY,a[1]))])}
+function vMemo(){
+  const r=UI.memoRes;
+  let h=pageHead('시험 범위·암기','학교 시험지나 시험 범위를 올리면 단원별로 무엇을 어떻게 외울지 알려 줘요.');
+  h+='<div class="card so"><h2>시험 범위 올리기</h2><div class="stack"><div class="row"><label class="lab" style="flex:0 0 110px">과목<select class="in" id="mm-s">'+subjOpts()+'</select></label><label class="lab" style="flex:2 1 220px">시험지·범위 사진 (최대 3장)<input class="in img" id="mm-f" type="file" accept="image/*" multiple></label></div>'
+   +(UI.pend.mt.length?'<div class="row">'+UI.pend.mt.map(u=>'<img class="thumb" src="'+u+'" alt="선택한 시험지 사진">').join('')+'</div>':'')
+   +'<label class="lab">시험 범위 (줄바꿈이나 쉼표로 구분)<textarea class="in" id="mm-t" placeholder="예: 이차함수의 그래프, 최대·최소, 경우의 수, 확률"></textarea></label>'
+   +'<div><button class="btn" data-a="mmmake"'+dis('mm')+'>'+busyTxt('mm','암기 전략 만들기','만드는 중…')+'</button></div>'+aiNote+'</div></div>';
+  if(r){
+    h+='<div class="card"><h2>'+sw(r.s)+' '+r.s+' 암기 전략<span class="bd">'+(r.ai?'AI 생성':'기본 도구')+'</span></h2><div class="grid">'+r.topics.map(t=>'<div class="q"><b>'+esc(t.name)+'</b> <span class="bd">'+esc(t.method)+'</span>'+(t.points&&t.points.length?'<ul class="sm" style="margin:6px 0">'+t.points.map(p=>'<li>• '+esc(p)+'</li>').join('')+'</ul>':'')+'<p class="sm muted">'+esc(t.how)+'</p></div>').join('')+'</div></div>';
+  }
+  h+='<div class="card"><h2>복습 일정<span class="sm muted">오늘 외운 내용 기준 (망각 곡선)</span></h2><ol class="tl">'+ebb().map(e=>'<li><b>'+fmtMD(e[1])+'</b><span>'+e[0]+'</span></li>').join('')+'</ol><p class="sm muted" style="margin-top:8px">백지에 떠올려 쓰고, 빠진 것만 색펜으로 채우는 방식이 가장 효과적이에요.</p></div>';
+  return h;
+}
+
+/* mock test */
+const BANK={
+ '수학':[{q:'y=x²−4x+3의 꼭짓점 좌표는?',c:['(2, −1)','(−2, −1)','(2, 1)','(4, 3)'],a:0,e:'완전제곱꼴로 쓰면 (x−2)²−1이에요.'},{q:'1≤x≤4에서 y=(x−2)²+1의 최댓값은?',c:['1','2','5','10'],a:2,e:'양 끝점 중 x=4에서 4+1=5가 가장 커요.'},{q:'주사위 두 개를 던질 때 눈의 합이 7일 확률은?',c:['1/6','1/9','5/36','7/36'],a:0,e:'경우의 수 6가지 ÷ 36 = 1/6이에요.'}],
+ '영어':[{q:'The book ___ I bought yesterday is interesting.',c:['who','which','where','whose'],a:1,e:'선행사가 사물이고 목적격이므로 which(또는 that)를 써요.'},{q:'She suggested that he ___ a doctor.',c:['sees','see','saw','seeing'],a:1,e:'suggest that 절에서는 동사원형을 써요.'},{q:'I look forward to ___ you.',c:['see','seeing','saw','be seen'],a:1,e:'to가 전치사이므로 동명사가 와요.'}],
+ '국어':[{q:'‘국물[궁물]’에서 일어난 음운 변동은?',c:['구개음화','비음화','된소리되기','음운 축약'],a:1,e:'ㄱ이 뒤의 비음 ㅁ 때문에 ㅇ으로 바뀌는 비음화예요.'},{q:'‘내 마음은 호수요’에 쓰인 표현법은?',c:['직유법','은유법','대유법','의인법'],a:1,e:'‘같이·처럼’ 없이 A는 B이다로 표현한 은유법이에요.'},{q:'서술어를 꾸며 주는 문장 성분은?',c:['관형어','부사어','독립어','목적어'],a:1,e:'용언을 꾸미는 성분은 부사어예요.'}],
+ '과학':[{q:'기체가 액체로 변하는 상태 변화는?',c:['융해','기화','액화','승화'],a:2,e:'기체→액체는 액화예요.'},{q:'20 m를 4초에 이동했다면 속력은?',c:['2 m/s','4 m/s','5 m/s','80 m/s'],a:2,e:'속력 = 거리 ÷ 시간 = 20 ÷ 4 = 5 m/s예요.'},{q:'광합성으로 만들어지는 물질은?',c:['산소와 포도당','이산화탄소와 물','질소와 물','수소와 산소'],a:0,e:'이산화탄소와 물이 빛에너지로 포도당과 산소가 돼요.'}],
+ '사회':[{q:'공급이 일정할 때 수요가 증가하면 균형 가격은?',c:['하락','상승','불변','알 수 없음'],a:1,e:'수요곡선이 오른쪽으로 이동해 균형 가격이 올라가요.'},{q:'삼권분립에서 법률을 만드는 기관은?',c:['정부','국회','법원','헌법재판소'],a:1,e:'입법권은 국회에 있어요.'},{q:'지방자치단체장은 어떻게 선출하나요?',c:['임명','주민 직접 선거','국회 추천','대통령 지명'],a:1,e:'지방자치단체장은 주민이 직접 선거로 뽑아요.'}]
+};
+function vMock(){
+  const wk=weekDates(0),done=new Set(S.mockHist.filter(m=>wk.indexOf(m.d)>=0).map(m=>m.s)),m=UI.mock;
+  let h=pageHead('주간 모의 테스트','매주 과목별로 짧은 테스트를 풀고 점수를 기록해요. 결과는 대시보드와 오답노트로 이어져요.');
+  h+='<div class="card"><h2>이번 주 진행 상황<span class="bd">'+done.size+'/5 과목</span></h2><div class="chips">'+SUBJ.map(s=>'<span class="chip">'+sw(s.n)+s.n+' '+(done.has(s.n)?'<b style="color:var(--good)">✓ 완료</b>':'<span class="muted">아직</span>')+'</span>').join('')+'</div></div>';
+  if(!m){
+    h+='<div class="card so"><h2>테스트 시작</h2><div class="row"><label class="lab" style="flex:0 0 110px">과목<select class="in" id="mk-s">'+subjOpts()+'</select></label><label class="lab" style="flex:2 1 220px">단원·범위 (AI 문제용)<input class="in" id="mk-u" placeholder="예: 이차함수 최대·최소"></label><button class="btn" data-a="mkstart" data-src="bank">기본 문제 3문항</button><button class="btn ghost ai" data-a="mkstart" data-src="ai"'+dis('mk')+'>'+busyTxt('mk','AI로 5문항 만들기','문제 만드는 중…')+'</button></div></div>';
+  }else{
+    h+='<div class="card"><h2>'+sw(m.s)+' '+m.s+' 테스트'+(m.u?' · '+esc(m.u):'')+'<span class="bd">'+(m.sub?m.sc+' / '+m.qs.length+'점':m.qs.length+'문항')+'</span></h2><div class="stack">'+m.qs.map((q,i)=>{const w=m.sub&&m.ans[i]!==q.a;return '<div class="q'+(m.sub?(w?' no':' ok'):'')+'"><b>'+(i+1)+'. '+esc(q.q)+'</b>'+q.c.map((c,j)=>'<label><input type="radio" name="q'+i+'" data-a="mkpick" data-i="'+i+'" data-j="'+j+'" '+(m.ans[i]===j?'checked ':'')+(m.sub?'disabled':'')+'><span>'+esc(c)+(m.sub&&j===q.a?' <b style="color:var(--good)">✓ 정답</b>':'')+'</span></label>').join('')+(m.sub?'<p class="sm muted">'+esc(q.e||'')+'</p>'+(w?'<button class="btn quiet s so" data-a="mkwrong" data-i="'+i+'">오답노트에 추가</button>':''):'')+'</div>'}).join('')
+     +'</div><div class="row" style="margin-top:12px">'+(m.sub?'<button class="btn" data-a="mkreset">새 테스트</button>':'<button class="btn" data-a="mksubmit">채점하기</button><button class="btn quiet" data-a="mkreset">그만두기</button>')+'</div></div>';
+  }
+  h+='<div class="card"><h2>최근 기록</h2>'+(S.mockHist.length?S.mockHist.slice().sort((a,b)=>a.d<b.d?1:-1).slice(0,8).map(x=>'<div class="todo"><div class="tt">'+sw(x.s)+' '+x.s+(x.u?' · '+esc(x.u):'')+'</div><span class="mono sm">'+x.sc+'/'+x.n+'</span><span class="sm muted mono">'+fmtMD(x.d)+'</span></div>').join(''):'<p class="muted">아직 기록이 없어요.</p>')+'</div>';
+  return h;
+}
+
+/* exam prep */
+const MILE=[[28,'시험 범위 확정 · 개념 1회독 시작'],[21,'개념 정리 노트 완성 · 유형 문제 1회'],[14,'기출·학교 프린트 풀이 · 오답 분류'],[7,'오답 2회독 · 주간 모의 테스트 2회'],[3,'암기 총정리 · 백지 복습'],[1,'컨디션 관리 · 준비물 확인']];
+function vExam(){
+  const ex=S.exams.slice().sort((a,b)=>a.d<b.d?-1:1),nx=upcoming()[0];
+  let h=pageHead('시험 대비','시험까지 남은 날짜를 거꾸로 계산해 단계별로 준비해요. 단원 칸을 누르면 개념 → 문제풀이 → 오답복습 순서로 진행도가 올라가요.');
+  if(nx)h+='<div class="card"><h2>'+esc(nx.name)+' 준비 로드맵<span class="bd">'+dday(nx.d)+' · '+fmtMD(nx.d)+'</span></h2><ol class="tl">'+MILE.map(m=>{const dt=iso(addDays(parseD(nx.d),-m[0])),past=dDiff(dt,TI)<0;return '<li class="'+(past?'past':'')+'"><b>D-'+m[0]+'</b><span>'+m[1]+' <span class="sm mono muted">'+fmtMD(dt)+(past?' · 지난 단계':'')+'</span></span></li>'}).join('')+'</ol></div>';
+  h+=ex.map(e=>{const us=e.subs.reduce((a,s)=>a.concat(s.units),[]),rd=us.length?Math.round(us.reduce((a,u)=>a+u.st,0)/(us.length*3)*100):0;
+    return '<article class="card"><h2><span>'+esc(e.name)+' <span class="bd">'+dday(e.d)+'</span></span><span class="sm muted">준비도 '+rd+'%</span></h2><div class="bar" style="margin-bottom:10px"><i style="width:'+rd+'%"></i></div><div class="grid">'
+     +e.subs.map((s,si)=>'<div class="q"><b>'+sw(s.s)+' '+s.s+'</b><p class="sm muted">'+esc(s.range)+'</p>'+s.units.map((u,ui)=>'<div class="unit"><button class="steps" data-a="unit" data-id="'+e.id+'" data-si="'+si+'" data-ui="'+ui+'" style="border:0;background:transparent;padding:2px" aria-label="'+esc(u.t)+' 진행도 '+u.st+'/3 (누르면 변경)" '+(S.role==='guardian'?'disabled':'')+'>'+[1,2,3].map(k=>'<i class="'+(u.st>=k?'on':'')+'"></i>').join('')+'</button><span class="sm">'+esc(u.t)+'</span><span class="sm muted">'+['미시작','개념','문제풀이','오답복습 완료'][u.st]+'</span></div>').join('')+'</div>').join('')
+     +'</div><div style="margin-top:8px"><button class="btn quiet s so" data-a="exdel" data-id="'+e.id+'">시험 삭제</button></div></article>'}).join('');
+  h+='<div class="card so"><h2>시험 추가</h2><div class="stack"><div class="row"><label class="lab">시험 이름<input class="in" id="ex-n" placeholder="예: 1학기 중간고사"></label><label class="lab" style="flex:0 0 170px">시험 날짜<input class="in" id="ex-d" type="date" value="'+iso(addDays(TODAY,30))+'"></label></div>'
+   +'<label class="lab">과목별 범위 (한 줄에 한 과목, “과목: 단원, 단원”)<textarea class="in" id="ex-r" placeholder="수학: 이차함수, 확률&#10;영어: 7과 본문, 관계사"></textarea></label><div><button class="btn" data-a="exadd">추가</button></div></div></div>';
+  return h;
+}
+
+/* performance tasks */
+const PT={'발표':['주제·목표 정하기','자료 조사','발표 대본 작성','슬라이드 제작','리허설(시간 재기)'],'보고서':['주제 선정','자료·실험 정리','초안 작성','그래프·표 점검','퇴고 · 제출'],'서술형':['평가 기준 확인','핵심 소재 메모','초안 작성','분량·맞춤법 점검','제출'],'실기':['평가 기준 확인','연습 계획 세우기','반복 연습','영상 촬영 후 점검','실전 리허설']};
+function vPerf(){
+  const ps=S.perf.slice().sort((a,b)=>a.due<b.due?-1:1);
+  let h=pageHead('수행평가','마감일에서 거꾸로 단계를 나누고, 단계별 기한까지 체크해요. 마감이 가까운 순서로 보여 줘요.');
+  h+=ps.map(p=>{const d=p.steps.filter(x=>x.done).length,r=Math.round(d/p.steps.length*100),n=dDiff(p.due,TI);
+    return '<article class="card"><h2><span>'+sw(p.s)+' '+esc(p.title)+' <span class="bd">'+esc(p.type)+' · '+p.pts+'점</span></span><span class="'+(n<=3&&n>=0&&r<100?'bd red':'bd')+'">마감 '+dday(p.due)+' · '+fmtMD(p.due)+'</span></h2><div class="bar" style="margin-bottom:8px"><i style="width:'+r+'%"></i></div>'
+     +p.steps.map((x,i)=>'<div class="todo'+(x.done?' done':'')+'"><input type="checkbox" data-a="pstep" data-id="'+p.id+'" data-i="'+i+'" '+(x.done?'checked':'')+(S.role==='guardian'?' disabled':'')+' aria-label="단계 완료"><div class="tt">'+esc(x.t)+(x.by?' <span class="sm muted mono">'+fmtMD(x.by)+'까지</span>':'')+'</div></div>').join('')
+     +'<div style="margin-top:8px"><button class="btn quiet s so" data-a="pdel" data-id="'+p.id+'">삭제</button></div></article>'}).join('');
+  h+='<div class="card so"><h2>수행평가 추가</h2><div class="stack"><div class="row"><label class="lab" style="flex:0 0 100px">과목<select class="in" id="pf-s">'+subjOpts()+'</select></label><label class="lab" style="flex:2 1 200px">제목<input class="in" id="pf-t" placeholder="예: 과학 실험 보고서"></label><label class="lab" style="flex:0 0 110px">유형<select class="in" id="pf-y">'+Object.keys(PT).map(k=>'<option>'+k+'</option>').join('')+'</select></label></div>'
+   +'<div class="row"><label class="lab" style="flex:0 0 170px">마감일<input class="in" id="pf-d" type="date" value="'+iso(addDays(TODAY,10))+'"></label><label class="lab" style="flex:0 0 100px">배점<input class="in" id="pf-p" type="number" value="20" min="1" max="100"></label></div>'
+   +'<div class="row"><button class="btn" data-a="pfadd">기본 단계로 추가</button><button class="btn ghost ai" data-a="pfadd" data-ai="1"'+dis('pf')+'>'+busyTxt('pf','AI 맞춤 단계로 추가','단계 만드는 중…')+'</button></div></div></div>';
+  return h;
+}
+
+/* strategy */
+const STRAT={
+'국어':{p:['비문학은 문단마다 중심 문장에 밑줄을 긋고 한 줄로 요약해요','문학은 화자·정서·표현법·시어의 기능 네 칸 표로 정리해요','문법은 개념 → 예문 → 판별 문제 순서로 반복해요'],w:['월·수: 비문학 지문 1개 (15분 타이머)','화·목: 문학 작품 1편 정리표 채우기','금: 문법 개념 5개 백지 복습','주말: 틀린 지문 구조를 도식으로 다시 그리기'],t:[['D-14','교과서 작품 전체 1회독 + 정리표'],['D-7','학교 프린트·기출 문장 단위 암기'],['D-3','시어 의미·표현법 백지 테스트']],m:['지문 근거 없이 느낌으로 선지 고르기','작품 감상을 설명 그대로만 암기하기','문법 용어를 뜻 없이 외우기']},
+'수학':{p:['개념은 유도 과정까지 이해하고 예제를 직접 풀어요','틀린 문제는 풀이를 덮고 다시 풀기를 3회 반복해요','풀이 첫 줄에 주어진 조건을 먼저 정리하는 습관을 들여요'],w:['월·목: 개념 + 유형 문제 20개','화·금: 오답 다시 풀기 + 변형 3문제','수: 시간을 재고 15문제 풀기','주말: 한 주 오답을 백지에서 다시 풀기'],t:[['D-14','교과서·익힘책 전부 풀기'],['D-7','기출·학교 프린트 + 오답 2회독'],['D-3','실전 시간 배분 연습 (쉬운 문제 먼저)']],m:['풀이를 눈으로만 보고 안다고 착각하기','계산 실수를 개념 부족으로 분류하기','시간이 없는데 어려운 문제에 매달리기']},
+'영어':{p:['단어는 매일 짧게, 1·3·7·14일 주기로 복습해요','본문은 소리 내어 읽고 → 해석 가리고 → 빈칸을 복원해요','문법은 예문 3개를 직접 만들어 규칙을 확인해요'],w:['매일: 단어 15분 + 본문 낭독 1회','화·목: 문법 문제 + 서술형 영작','수: 독해 1지문 + 듣기','주말: 본문 빈칸을 백지에 쓰기'],t:[['D-14','본문 전체 해석·구조 분석'],['D-7','본문 통암기 · 변형 문제'],['D-3','서술형 영작 · 문법 오류 점검']],m:['해석만 하고 문장 구조를 분석하지 않기','단어의 뜻만 외우고 철자·품사를 놓치기','서술형에서 철자·시제 실수하기']},
+'과학':{p:['현상 → 원리 → 적용 문제 순서로 세 단계로 정리해요','공식·단위·그래프를 한 장에 모아 요약해요','실험은 목적–과정–결과–주의점 네 칸으로 정리해요'],w:['월·수: 개념 정리 + 그림으로 설명','화·금: 계산·그래프 문제','목: 실험 단원 네 칸 정리','주말: 선생님이 되어 소리 내어 설명하기'],t:[['D-14','개념 요약 노트 완성'],['D-7','교과서 그림·표를 빈칸으로 만들어 암기'],['D-3','계산 문제 오답만 재풀이']],m:['공식만 외우고 조건·단위를 놓치기','그래프의 축과 단위를 확인하지 않기','실험의 변인 통제를 설명하지 못하기']},
+'사회':{p:['개념을 원인 → 과정 → 결과 흐름으로 연결해요','헷갈리는 개념은 비교표로 나눠요','그래프·지도 자료 해석을 함께 연습해요'],w:['월·목: 단원 흐름도 그리기','화·금: 자료 해석 문제 5개','수: 헷갈리는 개념 비교표 만들기','주말: 백지에 단원 키워드 쓰기'],t:[['D-14','교과서 정독 + 키워드 형광펜'],['D-7','흐름도·비교표 완성 후 백지 복습'],['D-3','틀리기 쉬운 선지 포인트 정리']],m:['흐름 없이 단어만 암기하기','비슷한 개념(수요 변화와 수요량 변화)을 구분하지 못하기','자료의 단위와 기준 연도를 놓치기']}
+};
+function vStrategy(){
+  const k=STRAT[UI.st],L=S.scores[S.scores.length-1],P=S.scores[S.scores.length-2]||L;
+  let h=pageHead('과목별 전략','과목마다 공부 방법이 달라요. 핵심 원칙, 주간 루틴, 시험 전 일정을 확인하고 내 기록으로 진단도 받아 보세요.');
+  h+='<div class="chips">'+SUBJ.map(s=>'<button class="chip" data-a="stsub" data-v="'+s.n+'" aria-pressed="'+(UI.st===s.n)+'">'+sw(s.n)+s.n+'</button>').join('')+'</div>';
+  h+='<div class="card"><h2>'+sw(UI.st)+' '+UI.st+' 현재 상태<span class="mono sm">최근 '+L[UI.st]+'점 '+delta(L[UI.st]-P[UI.st],'점')+'</span></h2>'
+   +'<div class="row"><button class="btn ghost ai" data-a="diag"'+dis('dg')+'>'+busyTxt('dg','내 기록으로 진단받기','진단 중…')+'</button></div>'+aiNote+(UI.diag[UI.st]?'<div class="q pre" style="margin-top:10px">'+esc(UI.diag[UI.st])+'</div>':'')+'</div>';
+  h+='<div class="grid"><div class="card"><h2>핵심 원칙</h2><ul class="stack">'+k.p.map(x=>'<li>• '+esc(x)+'</li>').join('')+'</ul></div><div class="card"><h2>주간 루틴</h2><ul class="stack">'+k.w.map(x=>'<li>• '+esc(x)+'</li>').join('')+'</ul></div>'
+   +'<div class="card"><h2>시험 전 일정</h2><ol class="tl">'+k.t.map(x=>'<li><b>'+x[0]+'</b><span>'+esc(x[1])+'</span></li>').join('')+'</ol></div>'
+   +'<div class="card"><h2>자주 하는 실수</h2><ul class="stack">'+k.m.map(x=>'<li><span class="stamp" style="font-size:12px;margin-right:6px">주의</span>'+esc(x)+'</li>').join('')+'</ul></div></div>';
+  return h;
+}
+const VIEWS={dashboard:vDashboard,plan:vPlan,timer:vTimer,lessons:vLessons,wrong:vWrong,memo:vMemo,mock:vMock,exam:vExam,perf:vPerf,strategy:vStrategy};
+
+/* render */
+function render(){
+  const main=$('#main'),keep={};
+  $$('#main [id]').forEach(el=>{if(/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName)&&el.type!=='file')keep[el.id]=el.value});
+  const y=window.scrollY;
+  document.body.dataset.role=S.role;TIPS=[];
+  $('#nav').innerHTML=navHTML();$('#roleSw').innerHTML=roleHTML();
+  main.innerHTML=(VIEWS[S.view]||vDashboard)()+'<footer class="sm muted">예시 데이터가 들어 있어요. 입력한 내용은 이 브라우저에만 저장돼요. <button class="btn quiet s" data-a="reset">'+(UI.cr?'정말 초기화할까요?':'예시 데이터로 초기화')+'</button></footer>';
+  Object.keys(keep).forEach(id=>{const el=document.getElementById(id);if(!el)return;if(el.tagName==='SELECT'){if([].some.call(el.options,o=>o.value===keep[id]||o.text===keep[id]))el.value=keep[id]}else el.value=keep[id]});
+  window.scrollTo(0,y);drawLine();tickTimer();
+}
+const go=v=>{S.view=v;save();render();window.scrollTo(0,0)};
+
+/* local fallbacks */
+function lessonLocal(s,tu,ti,notes){
+  const lines=notes.split('\n').map(x=>x.replace(/^[-•*\d.\s]+/,'').trim()).filter(Boolean);
+  const hw=lines.filter(x=>/숙제|과제/.test(x)).map(x=>({t:x.replace(/^(숙제|과제)\s*[:：]?\s*/,''),done:false}));
+  const pts=lines.filter(x=>!/숙제|과제/.test(x));
+  return {id:uid(),s:s,d:TI,tutor:tu,title:ti||(pts[0]||'수업 기록').slice(0,30),points:pts.length?pts:['(메모 없음)'],hw:hw,q:''};
+}
+function localMemo(text){
+  const M=[['두문자 암기','핵심어의 첫 글자를 따서 한 문장으로 만들어 외워요'],['비교표','헷갈리는 개념을 2열 표로 나누고 차이만 적어요'],['백지 복습','덮고 떠오르는 대로 쓴 뒤 빠진 것만 색펜으로 채워요'],['이야기 연결','순서가 있는 내용을 짧은 이야기로 이어 외워요']];
+  return text.split(/[\n,;·]/).map(x=>x.trim()).filter(Boolean).slice(0,8).map((t,i)=>({name:t,points:[],method:M[i%4][0],how:M[i%4][1]}));
+}
+function autoLocal(){
+  const L=S.scores[S.scores.length-1],sc=n=>L[n]-pending().filter(w=>w.s===n).length*3;
+  const pr=SUBJ.map(s=>s.n).sort((a,b)=>sc(a)-sc(b)),days=weekDates(UI.weekOff).filter(d=>d>=TI),out=[];
+  days.forEach((d,i)=>{const a=pr[i%5],b=pr[(i+1)%5],wr=pending().find(w=>w.s===a);
+    out.push({d:d,s:a,t:wr?'오답 복습: '+(wr.u||'핵심 단원'):'핵심 개념 복습 + 문제 10개',m:40});
+    out.push({d:d,s:b,t:'단원 문제풀이 15문제 (타이머)',m:30})});
+  return out;
+}
+
+/* AI tasks */
+async function analyze(w,file){
+  let blob=file;if(!blob&&w.img)blob=await dataBlob(w.img);
+  const r=await askJson(COACH+'\n아래 틀린 문제를 분석해 줘. 사진이 있으면 사진 속 문제를 읽고, 없으면 메모만 참고해. 반드시 JSON 객체만 응답: {"core":"핵심 개념 한 문장","cause":"학생이 틀린 이유 추정 한 문장","fix":"바로잡는 풀이 순서 3단계(① ② ③ 형식)","practice":"비슷한 연습 문제 1개","tip":"같은 실수를 줄이는 팁 한 문장"}\n과목: '+w.s+'\n단원: '+(w.u||'모름')+'\n학생이 고른 틀린 이유: '+w.why+'\n메모: '+(w.memo||'없음'),blob?[blob]:null);
+  const f=k=>String((r&&r[k])||'');w.ai={core:f('core'),cause:f('cause'),fix:f('fix'),practice:f('practice'),tip:f('tip')};save();
+}
+async function addWrong(useAI){
+  const s=$('#wr-s').value,u=$('#wr-u').value.trim(),why=$('#wr-w').value,memo=$('#wr-m').value.trim();
+  if(!UI.pend.wt&&!memo&&!u){toast('사진, 단원, 메모 중 하나는 입력해 주세요.');return}
+  const w={id:uid(),s:s,u:u,d:TI,why:why,memo:memo,st:'review',img:UI.pend.wt,ai:null},file=UI.pend.wf;
+  S.wrongs.push(w);UI.pend.wf=null;UI.pend.wt=null;$('#wr-u').value='';$('#wr-m').value='';save();
+  if(useAI&&SAMPLE)await run('wr',()=>analyze(w,file));else{render();toast('오답노트에 저장했어요.')}
+}
+async function makeMemo(){
+  const s=$('#mm-s').value,text=$('#mm-t').value.trim(),files=UI.pend.mf;
+  if(!text&&!files.length){toast('시험 범위를 입력하거나 사진을 올려 주세요.');return}
+  if(!SAMPLE){UI.memoRes={s:s,ai:false,topics:localMemo(text)};render();return}
+  UI.busy.mm=true;render();
+  try{
+    const r=await askJson(COACH+'\n'+s+' 시험 범위(텍스트와 첨부된 시험지 사진)를 보고 단원별 암기·학습 전략을 만들어 줘. 반드시 JSON 객체만 응답: {"topics":[{"name":"단원/주제","points":["꼭 외울 핵심 2~4개"],"method":"두문자·비교표·백지복습·이야기연결 중 하나","how":"그 방법으로 이 주제를 외우는 구체적 방법 한 문장"}]} 주제는 최대 8개.\n시험 범위 텍스트: '+(text||'(사진 참고)'),files);
+    const arr=(Array.isArray(r)?r:r.topics||[]).slice(0,8).map(t=>({name:String(t.name||''),points:Array.isArray(t.points)?t.points.map(String):[],method:String(t.method||'백지 복습'),how:String(t.how||'')})).filter(t=>t.name);
+    if(!arr.length)throw {code:'invalid_json'};
+    UI.memoRes={s:s,ai:true,topics:arr};
+  }catch(e){toast(aiMsg(e));if(text)UI.memoRes={s:s,ai:false,topics:localMemo(text)}}
+  UI.busy.mm=false;render();
+}
+async function autoPlan(){
+  const days=weekDates(UI.weekOff).filter(d=>d>=TI);
+  if(!days.length){toast('오늘 이후 날짜가 있는 주에서 만들어 주세요.');return}
+  const nx=upcoming()[0],L=S.scores[S.scores.length-1];let items=null;
+  if(SAMPLE){
+    UI.busy.plan=true;render();
+    try{
+      const r=await askJson(COACH+'\n아래 정보를 보고 다음 날짜들에 학습 계획을 만들어 줘. 하루 2~3개, 약한 과목과 복습 대기 오답을 먼저 반영. 반드시 JSON 배열만 응답: [{"d":"YYYY-MM-DD","s":"국어|수학|영어|과학|사회","t":"할 일","m":분(10~90)}]\n날짜: '+days.join(', ')+'\n다가오는 시험: '+(nx?nx.name+' '+dday(nx.d):'없음')+'\n최근 점수: '+SUBJ.map(s=>s.n+' '+L[s.n]).join(', ')+'\n복습 대기 오답: '+(pending().map(w=>w.s+' '+(w.u||'')).join(', ')||'없음'));
+      items=(Array.isArray(r)?r:[]).filter(x=>x&&days.indexOf(x.d)>=0&&SUBJ.some(s=>s.n===x.s)&&x.t).slice(0,21).map(x=>({d:x.d,s:x.s,t:String(x.t),m:Math.max(10,Math.min(120,+x.m||30))}));
+      if(!items.length)items=null;
+    }catch(e){toast(aiMsg(e))}
+    UI.busy.plan=false;
+  }
+  if(!items)items=autoLocal();
+  items.forEach(x=>S.tasks.push({id:uid(),d:x.d,s:x.s,t:x.t,m:x.m,done:false}));save();render();toast(items.length+'개의 계획을 추가했어요.');
+}
+async function lessonAI(){
+  const s=$('#ls-s').value,tu=$('#ls-tu').value.trim(),ti=$('#ls-ti').value.trim(),n=$('#ls-n').value.trim();
+  if(!n){toast('수업 메모를 입력해 주세요.');return}
+  await run('ls',async()=>{
+    const r=await askJson(COACH+'\n아래 과외 수업 메모를 정리해 줘. 반드시 JSON 객체만 응답: {"title":"수업 주제","points":["핵심 정리 3~6개"],"hw":["숙제 항목"],"q":"다음 수업 때 물어볼 만한 질문 1개"}\n과목: '+s+'\n메모:\n'+n);
+    const pts=Array.isArray(r.points)?r.points.map(String):[];if(!pts.length)throw {code:'invalid_json'};
+    S.lessons.push({id:uid(),s:s,d:TI,tutor:tu,title:String(r.title||ti||'수업 기록'),points:pts,hw:(Array.isArray(r.hw)?r.hw:[]).map(t=>({t:String(t),done:false})),q:String(r.q||'')});save();
+    $('#ls-n').value='';$('#ls-ti').value='';
+  });
+}
+async function mkStart(src){
+  const s=$('#mk-s').value,u=$('#mk-u').value.trim();let qs=null;
+  if(src==='ai'&&SAMPLE){
+    UI.busy.mk=true;render();
+    try{
+      const r=await askJson(COACH+'\n'+S.student.grade+' 수준 '+s+' 객관식 5문항을 만들어 줘. 범위: '+(u||'교과 핵심 개념')+'. 반드시 JSON 배열만 응답: [{"q":"문제","c":["보기1","보기2","보기3","보기4"],"a":정답 보기의 번호(0~3 정수),"e":"해설 한 문장"}]');
+      qs=(Array.isArray(r)?r:[]).filter(x=>x&&x.q&&Array.isArray(x.c)&&x.c.length===4&&Number.isInteger(x.a)&&x.a>=0&&x.a<4).slice(0,5).map(x=>({q:String(x.q),c:x.c.map(String),a:x.a,e:String(x.e||'')}));
+      if(qs.length<3)qs=null;
+    }catch(e){toast(aiMsg(e))}
+    UI.busy.mk=false;
+  }
+  if(!qs)qs=BANK[s].slice();
+  UI.mock={s:s,u:u,qs:qs,ans:[],sub:false,sc:0};render();
+}
+async function perfAdd(useAI){
+  const s=$('#pf-s').value,t=$('#pf-t').value.trim(),ty=$('#pf-y').value,due=$('#pf-d').value,pts=+$('#pf-p').value||20;
+  if(!t||!due){toast('제목과 마감일을 입력해 주세요.');return}
+  const span=Math.max(1,dDiff(due,TI)),def=PT[ty].map((x,i,a)=>({t:x,by:iso(addDays(TODAY,Math.round(span*(i+1)/a.length))),done:false}));
+  let steps=def;
+  if(useAI&&SAMPLE){
+    UI.busy.pf=true;render();
+    try{
+      const r=await askJson(COACH+'\n수행평가 준비 단계를 5~7개로 나눠 줘. 반드시 JSON 배열만 응답: [{"t":"단계 설명","by":"YYYY-MM-DD"}], by는 '+TI+'부터 '+due+' 사이 날짜.\n과목: '+s+'\n제목: '+t+'\n유형: '+ty+'\n배점: '+pts+'점');
+      const a=(Array.isArray(r)?r:[]).filter(x=>x&&x.t).slice(0,8).map(x=>({t:String(x.t),by:/^\d{4}-\d{2}-\d{2}$/.test(x.by)?(x.by>due?due:(x.by<TI?TI:x.by)):due,done:false}));
+      if(a.length>=3)steps=a;
+    }catch(e){toast(aiMsg(e))}
+    UI.busy.pf=false;
+  }
+  S.perf.push({id:uid(),s:s,title:t,type:ty,due:due,pts:pts,steps:steps});save();$('#pf-t').value='';render();toast('수행평가를 추가했어요.');
+}
+async function diagnose(){
+  const n=UI.st;
+  await run('dg',async()=>{
+    const txt=await askText(COACH+'\n아래 기록을 보고 '+n+' 과목 진단을 해 줘. 마크다운 기호 없이 5줄 이내로: 1) 현재 상태 한 줄 2) 가장 큰 약점 한 줄 3) 이번 주 해야 할 행동 3가지(줄마다 번호).\n점수 추이: '+S.scores.map(r=>r.l+' '+r[n]).join(', ')+'\n이번 주 공부 시간: '+fmtMin(minsIn(weekDates(0),n))+'\n복습 대기 오답: '+(pending().filter(w=>w.s===n).map(w=>(w.u||'단원 미상')+'('+w.why+')').join(', ')||'없음')+'\n다가오는 시험: '+(upcoming()[0]?upcoming()[0].name+' '+dday(upcoming()[0].d):'없음'));
+    UI.diag[n]=txt.trim();
+  });
+}
+
+/* actions */
+function act(a,el){
+  const id=el.dataset.id,v=el.dataset.v;
+  switch(a){
+    case 'go':go(v);return;
+    case 'role':S.role=v;save();render();return;
+    case 'vis':if(UI.vis.has(v))UI.vis.delete(v);else UI.vis.add(v);render();return;
+    case 'tk':{const t=S.tasks.find(x=>x.id===id);if(t){t.done=el.checked;save();render()}return}
+    case 'tkdel':S.tasks=S.tasks.filter(x=>x.id!==id);save();render();return;
+    case 'tkadd':{const t=$('#tk-t').value.trim();if(!t){toast('할 일을 입력해 주세요.');return}S.tasks.push({id:uid(),d:$('#tk-d').value,s:$('#tk-s').value,t:t,m:+$('#tk-m').value,done:false});$('#tk-t').value='';save();render();return}
+    case 'week':UI.weekOff=el.dataset.n==='0'?0:UI.weekOff+(+el.dataset.n);render();return;
+    case 'autoplan':autoPlan();return;
+    case 'tmsub':S.timer.s=v;save();render();return;
+    case 'tmtoggle':{const t=S.timer;if(t.on){t.acc+=Date.now()-t.at;t.on=false}else{t.at=Date.now();t.on=true}save();render();return}
+    case 'tmsave':{const t=S.timer,e=t.acc+(t.on?Date.now()-t.at:0),m=Math.round(e/60000);if(m<1){toast('1분 이상 공부하면 기록할 수 있어요.');return}S.sessions.push({id:uid(),d:TI,s:t.s,m:m});t.on=false;t.acc=0;save();render();toast(subj(t.s).n+' '+fmtMin(m)+' 기록했어요.');return}
+    case 'tmreset':S.timer.on=false;S.timer.acc=0;save();render();return;
+    case 'pomo':S.timer.pomo=el.checked;save();render();return;
+    case 'ssdel':S.sessions=S.sessions.filter(x=>x.id!==id);save();render();return;
+    case 'msadd':{const m=Math.max(1,Math.min(600,+$('#ms-m').value||0));S.sessions.push({id:uid(),d:TI,s:$('#ms-s').value,m:m});save();render();return}
+    case 'goal':S.goalMin=+el.value;save();render();return;
+    case 'lsadd':{const n=$('#ls-n').value.trim(),ti=$('#ls-ti').value.trim();if(!n&&!ti){toast('수업 주제나 메모를 입력해 주세요.');return}S.lessons.push(lessonLocal($('#ls-s').value,$('#ls-tu').value.trim(),ti,n));$('#ls-n').value='';$('#ls-ti').value='';save();render();return}
+    case 'lsai':lessonAI();return;
+    case 'hw':{const l=S.lessons.find(x=>x.id===id);if(l){l.hw[+el.dataset.i].done=el.checked;save();render()}return}
+    case 'lsdel':S.lessons=S.lessons.filter(x=>x.id!==id);save();render();return;
+    case 'wf':UI.wf=v;render();return;
+    case 'wradd':addWrong(!!el.dataset.ai);return;
+    case 'wrst':{const w=S.wrongs.find(x=>x.id===id);if(w){w.st=w.st==='review'?'done':'review';save();render()}return}
+    case 'wrai':{const w=S.wrongs.find(x=>x.id===id);if(w)run('wr'+id,()=>analyze(w,null));return}
+    case 'wrdel':S.wrongs=S.wrongs.filter(x=>x.id!==id);save();render();return;
+    case 'mmmake':makeMemo();return;
+    case 'mkstart':mkStart(el.dataset.src);return;
+    case 'mkpick':UI.mock.ans[+el.dataset.i]=+el.dataset.j;return;
+    case 'mksubmit':{const m=UI.mock;if(!m.ans.some(x=>x!==undefined)){toast('답을 하나 이상 골라 주세요.');return}m.sc=m.qs.filter((q,i)=>m.ans[i]===q.a).length;m.sub=true;S.mockHist.push({id:uid(),d:TI,s:m.s,sc:m.sc,n:m.qs.length,u:m.u});save();render();return}
+    case 'mkreset':UI.mock=null;render();return;
+    case 'mkwrong':{const m=UI.mock,q=m.qs[+el.dataset.i];S.wrongs.push({id:uid(),s:m.s,u:m.u||'모의 테스트',d:TI,why:'개념 부족',memo:'모의 테스트: '+q.q,st:'review',img:null,ai:null});save();render();toast('오답노트에 추가했어요.');return}
+    case 'unit':{const e=S.exams.find(x=>x.id===id);if(e){const u=e.subs[+el.dataset.si].units[+el.dataset.ui];u.st=(u.st+1)%4;save();render()}return}
+    case 'exdel':S.exams=S.exams.filter(x=>x.id!==id);save();render();return;
+    case 'exadd':{
+      const name=$('#ex-n').value.trim(),d=$('#ex-d').value,subs=[];
+      $('#ex-r').value.split('\n').forEach(line=>{const m=line.split(/[:：]/);if(m.length<2)return;const sn=m[0].trim();if(!SUBJ.some(s=>s.n===sn))return;const us=m.slice(1).join(':').split(/[,，]/).map(x=>x.trim()).filter(Boolean);if(us.length)subs.push({s:sn,range:us.join(', '),units:us.map(t=>({t:t,st:0}))})});
+      if(!name||!d||!subs.length){toast('이름, 날짜, “과목: 단원, 단원” 형식의 범위를 입력해 주세요.');return}
+      S.exams.push({id:uid(),name:name,d:d,subs:subs});$('#ex-n').value='';$('#ex-r').value='';save();render();return}
+    case 'pstep':{const p=S.perf.find(x=>x.id===id);if(p){p.steps[+el.dataset.i].done=el.checked;save();render()}return}
+    case 'pdel':S.perf=S.perf.filter(x=>x.id!==id);save();render();return;
+    case 'pfadd':perfAdd(!!el.dataset.ai);return;
+    case 'stsub':UI.st=v;render();return;
+    case 'diag':diagnose();return;
+    case 'comment':{const t=$('#cm-t').value.trim();if(!t){toast('내용을 입력해 주세요.');return}S.comments.push({id:uid(),who:$('#cm-who').value,d:TI,t:t});save();render();return}
+    case 'reset':if(!UI.cr){UI.cr=true;render();setTimeout(()=>{UI.cr=false;render()},4000)}else{UI.cr=false;S=seed();save();render();toast('예시 데이터로 초기화했어요.')}return;
+  }
+}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-a]');if(!b||b.disabled)return;if(b.tagName==='INPUT'||b.tagName==='SELECT')return;act(b.dataset.a,b)});
+document.addEventListener('change',async e=>{
+  const el=e.target;
+  if(el.id==='wr-f'){const f=el.files&&el.files[0];if(f){UI.pend.wf=f;UI.pend.wt=await thumb(f,800);render()}return}
+  if(el.id==='mm-f'){const fs=[].slice.call(el.files||[],0,3);UI.pend.mf=fs;UI.pend.mt=(await Promise.all(fs.map(f=>thumb(f,320)))).filter(Boolean);render();return}
+  if(el.dataset&&el.dataset.a&&(el.tagName==='INPUT'||el.tagName==='SELECT'))act(el.dataset.a,el);
+});
+/* tooltip events */
+const tipT=e=>e.target.closest&&e.target.closest('[data-tip]');
+document.addEventListener('pointerover',e=>{const t=tipT(e);if(t)showTip(TIPS[+t.dataset.tip],e)});
+document.addEventListener('pointermove',e=>{const t=tipT(e);if(t&&!tipEl.hidden)placeTip(e)});
+document.addEventListener('pointerout',e=>{const t=tipT(e);if(t&&!t.contains(e.relatedTarget))hideTip()});
+document.addEventListener('pointerdown',e=>{if(!tipT(e)&&!(e.target.id==='lcov'))hideTip()});
+document.addEventListener('focusin',e=>{const t=tipT(e);if(t){const r=t.getBoundingClientRect();showTip(TIPS[+t.dataset.tip],{clientX:r.left+r.width/2,clientY:r.top})}});
+document.addEventListener('focusout',e=>{if(tipT(e))hideTip()});
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(drawLine,150)});
+/* boot */
+S=load();render();setInterval(tickTimer,1000);initAI();
+})();
+</script>
