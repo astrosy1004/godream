@@ -187,3 +187,13 @@ a{color:var(--accent)}
 .cb:disabled{cursor:default;opacity:.6}
 .code{font-family:var(--f-mono);font-size:30px;letter-spacing:.18em;font-weight:500}
 .soon-card{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+
+/* 수업 노트 */
+textarea.in{min-height:84px;resize:vertical;font:inherit;line-height:1.55}
+.note{display:flex;flex-direction:column;gap:10px}
+.note h3{margin:0;font-size:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.note .nh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.note .nb{border-top:1px dashed var(--line);padding-top:8px}
+.note .nb>b{display:block;font-size:12.5px;color:var(--ink2);margin-bottom:2px}
+.hwbox{display:flex;gap:10px;align-items:flex-start}
+.hwbox.done .pre{text-decoration:line-through;color:var(--muted)}

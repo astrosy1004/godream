@@ -13,7 +13,8 @@
 | 학습 계획 (주간 보기, 추가·완료·삭제) | 완료 |
 | 혼공 타이머 (서버 시각 기준, 과목별, 하루 목표, 25/5 표시, 직접 기록) | 완료 |
 | 대시보드 (주간 공부 시간, 계획 달성률, 연속 공부일, 과목별) | 완료 |
-| 수업 노트, 오답노트, 시험 범위·암기, 모의 테스트, 시험 대비, 수행평가, 과목별 전략 | 화면 자리만 있음 (다음 단계) |
+| 수업 노트 (학생·연결된 선생님이 작성, 학부모 열람, 숙제 체크, 과목 필터) | 완료 (`0002_lessons.sql` 실행 필요) |
+| 오답노트, 시험 범위·암기, 모의 테스트, 시험 대비, 수행평가, 과목별 전략 | 화면 자리만 있음 (다음 단계) |
 
 학부모·선생님은 연결된 학생의 기록을 **읽기만** 할 수 있고, 이 제한은 화면이 아니라 DB 정책(RLS)으로 강제돼요.
 
@@ -24,7 +25,7 @@ Next.js 16 (App Router, Server Actions, `proxy.ts`) · TypeScript · Supabase (P
 ## Supabase 설정 (처음 한 번)
 
 1. [supabase.com](https://supabase.com)에서 새 프로젝트를 만듭니다.
-2. **SQL Editor**에 `supabase/migrations/0001_init.sql` 내용을 붙여 넣고 실행합니다.
+2. **SQL Editor**에 `supabase/migrations/0001_init.sql`, 이어서 `0002_lessons.sql` 내용을 차례로 붙여 넣고 각각 실행합니다.
 3. **Project Settings → API**에서 `Project URL`과 `anon`(또는 `publishable`) 키를 복사합니다.
 4. (테스트할 때만) **Authentication → Providers → Email**에서 *Confirm email*을 끄면 가입 즉시 로그인돼요. 켜 두면 확인 메일의 링크를 눌러야 해요.
 5. 배포 주소가 정해지면 **Authentication → URL Configuration**의 *Site URL*에 그 주소를 넣습니다.

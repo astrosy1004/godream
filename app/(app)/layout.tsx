@@ -37,7 +37,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         { href: "/timer", label: "혼공 타이머", badge: minutes ? fmtMinutes(minutes) : undefined },
       ],
     },
-    { group: "정리", items: [{ href: "/lessons", label: "수업 노트", soon: true }, { href: "/wrong", label: "오답노트", soon: true }] },
+    { group: "정리", items: [{ href: "/lessons", label: "수업 노트" }, { href: "/wrong", label: "오답노트", soon: true }] },
     {
       group: "시험",
       items: [

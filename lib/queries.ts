@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { PlanTask, StudySession, TimerRow } from "@/lib/types";
+import type { LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
 
 export async function fetchSessions(studentId: string, from: string, to: string): Promise<StudySession[]> {
   const supabase = await createClient();
@@ -37,4 +37,16 @@ export async function fetchStudyDays(studentId: string, from: string): Promise<s
   const supabase = await createClient();
   const { data } = await supabase.from("study_sessions").select("studied_on").eq("student_id", studentId).gte("studied_on", from);
   return ((data ?? []) as { studied_on: string }[]).map((r) => r.studied_on);
+}
+
+/** 수업 노트: 수업 날짜 최신순, 과목 필터 선택 */
+export async function fetchLessons(studentId: string, subject?: string): Promise<LessonNote[]> {
+  const supabase = await createClient();
+  let q = supabase
+    .from("lesson_notes")
+    .select("id, student_id, author_id, subject, lesson_on, title, summary, homework, next_questions, homework_done_at, author:profiles!lesson_notes_author_id_fkey(name)")
+    .eq("student_id", studentId);
+  if (subject) q = q.eq("subject", subject);
+  const { data } = await q.order("lesson_on", { ascending: false }).order("created_at", { ascending: false }).limit(100);
+  return (data ?? []) as unknown as LessonNote[];
 }

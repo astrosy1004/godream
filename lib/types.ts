@@ -26,6 +26,20 @@ export interface StudySession {
   studied_on: string;
 }
 
+export interface LessonNote {
+  id: string;
+  student_id: string;
+  author_id: string;
+  subject: string;
+  lesson_on: string;
+  title: string;
+  summary: string;
+  homework: string;
+  next_questions: string;
+  homework_done_at: string | null;
+  author: { name: string } | null;
+}
+
 export interface TimerRow {
   student_id: string;
   subject: string;
