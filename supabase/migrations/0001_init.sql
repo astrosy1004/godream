@@ -1,4 +1,4 @@
--- 공부길 1단계 스키마: 계정, 학생-학부모/선생님 연결, 학습 계획, 공부 기록, 타이머
+-- 고드림 1단계 스키마: 계정, 학생-학부모/선생님 연결, 학습 계획, 공부 기록, 타이머
 -- Supabase 대시보드 > SQL Editor 에 붙여 넣어 실행하세요.
 
 create extension if not exists pgcrypto;

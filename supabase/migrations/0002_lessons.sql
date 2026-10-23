@@ -1,4 +1,4 @@
--- 공부길 수업 노트: 학생 본인 또는 연결된 선생님이 작성, 학부모는 열람만.
+-- 고드림 수업 노트: 학생 본인 또는 연결된 선생님이 작성, 학부모는 열람만.
 -- 0001_init.sql 을 실행한 뒤 Supabase SQL Editor 에서 실행하세요.
 
 create table public.lesson_notes (

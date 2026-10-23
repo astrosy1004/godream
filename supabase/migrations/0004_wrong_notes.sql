@@ -1,4 +1,4 @@
--- 공부길 오답노트: 사진(비공개 저장소) + 틀린 이유 + AI 분석 + 간격 복습
+-- 고드림 오답노트: 사진(비공개 저장소) + 틀린 이유 + AI 분석 + 간격 복습
 -- 0001~0003 을 실행한 뒤 Supabase SQL Editor 에서 실행하세요.
 
 create table public.wrong_notes (

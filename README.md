@@ -1,8 +1,8 @@
-# 공부길 (Gongbugil)
+# 고드림 (GoDream)
 
 중·고등학생을 위한 학습 관리 서비스. 이 저장소는 개발 계획서의 **1단계 앞부분**(뼈대, 계정·권한, 학습 계획, 혼공 타이머, 대시보드)을 담고 있어요.
 
-> 문서: [개발 계획서](docs/개발계획서.html) · [목업 화면(프로토타입)](docs/mockup/gongbugil-prototype.html) — 내려받아 브라우저에서 여세요.
+> 문서: [개발 계획서](docs/개발계획서.html) · [목업 화면(프로토타입)](docs/mockup/godream-prototype.html) — 내려받아 브라우저에서 여세요.
 
 ## 구현된 것
 

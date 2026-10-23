@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "공부길", template: "%s · 공부길" },
+  title: { default: "고드림 GoDream", template: "%s · 고드림" },
   description: "중·고등학생을 위한 학습 계획, 오답노트, 시험 대비 플랫폼",
 };
 

@@ -1,15 +1,15 @@
-// 공부길 서비스 워커: 푸시 알림을 보여 주고, 누르면 해당 화면을 연다.
+// 고드림 서비스 워커: 푸시 알림을 보여 주고, 누르면 해당 화면을 연다.
 self.addEventListener("push", (event) => {
   let data = {};
   try {
     data = event.data ? event.data.json() : {};
   } catch (e) {
-    data = { title: "공부길", body: event.data ? event.data.text() : "" };
+    data = { title: "고드림", body: event.data ? event.data.text() : "" };
   }
   event.waitUntil(
-    self.registration.showNotification(data.title || "공부길", {
+    self.registration.showNotification(data.title || "고드림", {
       body: data.body || "",
-      tag: data.tag || "gongbugil",
+      tag: data.tag || "godream",
       data: { url: data.url || "/dashboard" },
     }),
   );
