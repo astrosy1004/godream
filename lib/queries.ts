@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { ExamScope, WrongNote, FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
+import type { ExamScope, MockTest, WrongNote, FeedbackRow, LessonNote, PlanTask, StudySession, TimerRow } from "@/lib/types";
 
 export async function fetchSessions(studentId: string, from: string, to: string): Promise<StudySession[]> {
   const supabase = await createClient();
@@ -100,4 +100,16 @@ export async function fetchExamScopes(studentId: string): Promise<ExamScope[]> {
     .order("created_at", { ascending: false })
     .limit(60);
   return (data ?? []) as ExamScope[];
+}
+
+export async function fetchMockTests(studentId: string): Promise<MockTest[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mock_tests").select("*").eq("student_id", studentId).order("created_at", { ascending: false }).limit(60);
+  return (data ?? []) as MockTest[];
+}
+
+export async function fetchMockTest(studentId: string, id: string): Promise<MockTest | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("mock_tests").select("*").eq("student_id", studentId).eq("id", id).maybeSingle();
+  return (data as MockTest | null) ?? null;
 }

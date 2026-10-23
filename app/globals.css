@@ -206,3 +206,9 @@ textarea.in{min-height:84px;resize:vertical;font:inherit;line-height:1.55}
 
 /* 오답노트 */
 .wimg{max-width:100%;max-height:360px;border-radius:8px;border:1px solid var(--line);object-fit:contain;background:var(--surface2);align-self:flex-start}
+
+/* 모의 테스트 주별 정답률 */
+.trend{display:flex;gap:8px;height:170px;margin-top:10px}
+.trend .tw{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px}
+.trend .tbwrap{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.trend .tb{width:min(100%,34px);background:var(--accent);border-radius:4px 4px 0 0}

@@ -83,6 +83,19 @@ export interface ExamScope {
   created_at: string;
 }
 
+export interface MockTest {
+  id: string;
+  student_id: string;
+  subject: string;
+  title: string;
+  questions: import("@/lib/mock").MockQuestion[];
+  answers: (string | null)[] | null;
+  score: number | null;
+  total: number;
+  taken_at: string | null;
+  created_at: string;
+}
+
 export interface TimerRow {
   student_id: string;
   subject: string;
