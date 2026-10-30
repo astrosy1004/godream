@@ -48,7 +48,7 @@ export function NightlyPopup({ status, date }: { status: DayStatus; date: string
           <p>{nightly.body}</p>
         )}
         <div className="row">
-          <Link className="btn" href={warn ? "/plan" : "/plan"} onClick={close}>{warn ? "계획 세우러 가기" : "계획 열기"}</Link>
+          <Link className="btn" href="/plan" onClick={close}>{warn ? "계획 세우러 가기" : "계획 열기"}</Link>
           <button className="btn ghost" onClick={close}>나중에 할게요</button>
         </div>
       </div>
