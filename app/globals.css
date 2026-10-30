@@ -51,11 +51,6 @@ ul,ol{padding:0;list-style:none}
 .role button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
 .nav{display:flex;flex-direction:column;gap:2px}
 .nav .grp{font-size:11px;letter-spacing:.1em;color:var(--muted);margin:14px 10px 4px;font-family:var(--f-mono)}
-.nav button{display:flex;align-items:center;justify-content:space-between;gap:8px;border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:8px;color:var(--ink2);font-weight:500;font-size:14px}
-.nav button:hover{background:var(--surface)}
-.nav button[aria-current=page]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
-.nav .lb{padding:0 2px}
-.nav button[aria-current=page] .lb{background:linear-gradient(transparent 58%,var(--hl-line) 58%)}
 .bd{font-family:var(--f-mono);font-size:11px;padding:0 7px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);color:var(--ink2);line-height:1.6;white-space:nowrap}
 .bd.red{background:var(--red-soft);color:var(--red);border-color:transparent}
 .main{min-width:0;display:flex;flex-direction:column;gap:18px}
@@ -156,7 +151,7 @@ body[data-img=off] .img{display:none!important}
   .side{display:contents}
   .nav{flex-direction:row;overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding:8px max(16px,env(safe-area-inset-left,0px));margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));border-bottom:1px solid var(--line);scrollbar-width:none}
   .nav .grp{display:none}
-  .nav button{white-space:nowrap;flex:none}
+  .nav a{white-space:nowrap;flex:none}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 
@@ -167,7 +162,6 @@ a{color:var(--accent)}
 .nav a[aria-current=page]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
 .nav a[aria-current=page] .lb{background:linear-gradient(transparent 58%,var(--hl-line) 58%)}
 .nav a .lb{padding:0 2px}
-.nav a.soon{color:var(--muted)}
 .me{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;display:flex;flex-direction:column;gap:6px}
 .me form{display:inline}
 .linkbtn{border:0;background:transparent;color:var(--accent);padding:0;font-size:13px;text-decoration:underline;cursor:pointer}
